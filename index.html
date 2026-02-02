@@ -532,6 +532,25 @@ opacity:.92;
 font-weight:1100;
 position:relative;
 z-index:2;
+}/* === PATCH: mobile slide scrolling + iOS viewport fix === */
+html, body { height: 100%; overflow: hidden; }
+
+/* iOS dynamic viewport */
+:root { --vh: 100dvh; }
+
+/* Make each slide scrollable without breaking swipe */
+.slide, .swiper-slide {
+  height: var(--vh);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: max(18px, env(safe-area-inset-bottom));
+}
+
+/* Keep content readable */
+@media (max-width: 480px) {
+  body { font-size: 16px; }
+  h1 { font-size: 34px; line-height: 1.05; }
+  h2 { font-size: 22px; }
 }
 </style>
 </head>
@@ -1110,6 +1129,68 @@ blip(520); fetchResults();
 
 // auto fetch once
 setTimeout(fetchResults, 1100);
+  /* === PATCH: mobile-safe sound toggle (no external mp3 needed) === */
+let __audioCtx, __gain, __osc1, __osc2, __osc3;
+let __soundOn = false;
+
+function __startSound() {
+  if (!__audioCtx) {
+    __audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    __gain = __audioCtx.createGain();
+    __gain.gain.value = 0.0;
+    __gain.connect(__audioCtx.destination);
+
+    // glossy popstar pad chord
+    __osc1 = __audioCtx.createOscillator();
+    __osc2 = __audioCtx.createOscillator();
+    __osc3 = __audioCtx.createOscillator();
+    [__osc1, __osc2, __osc3].forEach(o => { o.type = "sine"; o.connect(__gain); });
+
+    __osc1.frequency.value = 220;     // A3
+    __osc2.frequency.value = 277.18;  // C#4-ish
+    __osc3.frequency.value = 329.63;  // E4
+    __osc1.start(); __osc2.start(); __osc3.start();
+
+    // shimmer
+    const lfo = __audioCtx.createOscillator();
+    const lfoGain = __audioCtx.createGain();
+    lfo.type = "sine";
+    lfo.frequency.value = 0.25;
+    lfoGain.gain.value = 10;
+    lfo.connect(lfoGain);
+    lfoGain.connect(__osc1.frequency);
+    lfoGain.connect(__osc2.frequency);
+    lfo.start();
+  }
+  if (__audioCtx.state === "suspended") __audioCtx.resume();
+
+  const now = __audioCtx.currentTime;
+  __gain.gain.cancelScheduledValues(now);
+  __gain.gain.setValueAtTime(__gain.gain.value, now);
+  __gain.gain.linearRampToValueAtTime(0.12, now + 0.25);
+}
+
+function __stopSound() {
+  if (!__audioCtx || !__gain) return;
+  const now = __audioCtx.currentTime;
+  __gain.gain.cancelScheduledValues(now);
+  __gain.gain.setValueAtTime(__gain.gain.value, now);
+  __gain.gain.linearRampToValueAtTime(0.0, now + 0.2);
+}
+
+function toggleSound() {
+  __soundOn = !__soundOn;
+  if (__soundOn) __startSound(); else __stopSound();
+
+  const lbl = document.querySelector("[data-sound-label]");
+  if (lbl) lbl.textContent = __soundOn ? "Sound: ON" : "Sound: OFF";
+}
+
+/* Auto-wire: any element with data-sound-toggle becomes the sound button */
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-sound-toggle]");
+  if (btn) toggleSound();
+});
 </script>
 </body>
 </html>
