@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Galentine’s Launch 💖🚀</title>
 
 <style>
@@ -25,7 +25,6 @@
 
 --safeTop: env(safe-area-inset-top);
 --safeBot: env(safe-area-inset-bottom);
---vh: 100dvh;
 }
 
 *{box-sizing:border-box}
@@ -88,6 +87,9 @@ display:flex;
 flex-direction:column;
 padding-top: calc(10px + var(--safeTop));
 padding-bottom: calc(10px + var(--safeBot));
+
+/* ✅ KEY for iOS flex scroll */
+min-height: 0;
 }
 
 /* Top bar */
@@ -97,6 +99,7 @@ align-items:center;
 justify-content:space-between;
 gap:10px;
 padding: 10px 14px;
+flex: 0 0 auto;
 }
 .chip{
 display:inline-flex; align-items:center; gap:8px;
@@ -143,33 +146,49 @@ box-shadow: 0 0 0 6px rgba(255,31,184,.14);
 
 /* Carousel */
 .viewport{
-flex:1;
+flex: 1 1 auto;
 overflow:hidden;
 padding: 10px 14px;
+
+/* ✅ KEY for iOS flex scroll */
+min-height: 0;
 }
+
 .track{
 height:100%;
 display:flex;
 gap:14px;
 overflow-x:auto;
+overflow-y:hidden;
 scroll-snap-type: x mandatory;
 -webkit-overflow-scrolling: touch;
 scroll-behavior:smooth;
 padding-bottom: 10px;
+
+/* ✅ make slides fill height */
+align-items: stretch;
+
+/* ✅ gestures */
+touch-action: pan-x;
 }
 .track::-webkit-scrollbar{ display:none; }
 
 .slide{
 flex: 0 0 100%;
 scroll-snap-align: center;
-height: 100%;
+
+height:100%;
+min-height: 0; /* ✅ KEY */
 display:flex;
 flex-direction:column;
 gap:12px;
 
-/* ✅ allow vertical scrolling inside each slide */
+/* ✅ allow vertical scrolling */
 overflow-y:auto;
 -webkit-overflow-scrolling: touch;
+touch-action: pan-y;
+overscroll-behavior: contain;
+
 padding-bottom: max(18px, env(safe-area-inset-bottom));
 }
 
@@ -185,6 +204,9 @@ overflow:hidden;
 transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
 transition: transform 120ms ease;
 will-change: transform;
+
+/* ✅ let content scroll on short screens */
+min-height: 0;
 }
 .card:before{
 content:"";
@@ -300,6 +322,9 @@ user-select:none;
 cursor:pointer;
 position:relative;
 overflow:hidden;
+
+/* ✅ ensure clickable */
+pointer-events:auto;
 }
 .btn3d.primary{
 color:#fff;
@@ -310,6 +335,15 @@ linear-gradient(180deg, var(--hot), var(--hot2));
 .btn3d.ghost{
 color: var(--ink);
 background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.62));
+}
+.btn3d.chrome{
+color: var(--ink);
+background:
+radial-gradient(160px 90px at 22% 18%, rgba(255,255,255,.95), transparent 58%),
+radial-gradient(220px 120px at 80% 78%, rgba(255,255,255,.55), transparent 65%),
+linear-gradient(135deg, rgba(230,230,255,.95), rgba(255,255,255,.65) 35%, rgba(255,120,214,.25) 70%, rgba(180,255,220,.35));
+border: 1px solid rgba(255,255,255,.85);
+box-shadow: 0 18px 0 rgba(140,0,90,.12), 0 18px 45px rgba(0,0,0,.16);
 }
 .btn3d:active{
 transform: translateY(8px);
@@ -365,6 +399,9 @@ cursor:pointer;
 user-select:none;
 -webkit-tap-highlight-color: transparent;
 transition: transform .12s ease, box-shadow .12s ease;
+
+/* ✅ ensure clickable */
+pointer-events:auto;
 }
 .opt:active{
 transform: translateY(7px);
@@ -399,6 +436,7 @@ display:flex;
 gap:10px;
 align-items:center;
 justify-content:space-between;
+flex: 0 0 auto;
 }
 .dots{ display:flex; gap:8px; align-items:center; }
 .dot{
@@ -411,25 +449,12 @@ box-shadow: 0 10px 18px rgba(0,0,0,.10);
 
 /* Loading screen */
 .loading{
-  position:fixed; inset:0; z-index:50;
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:14px;
-  background:
-    radial-gradient(900px 700px at 20% 10%, rgba(255,255,255,.85) 0%, transparent 55%),
-    linear-gradient(135deg, var(--lav), var(--baby) 30%, var(--pink) 65%, var(--hot2));
-
-  /* ✅ GUARANTEED AUTO-HIDE */
-  animation: loaderExit 0.35s ease forwards;
-  animation-delay: 1.2s;
-  pointer-events:none;
-}
-
-@keyframes loaderExit{
-  to{
-    opacity:0;
-    visibility:hidden;
-    transform: translateY(-6px);
-  }
+position:fixed; inset:0; z-index:50;
+display:flex; flex-direction:column; align-items:center; justify-content:center;
+gap:14px;
+background:
+radial-gradient(900px 700px at 20% 10%, rgba(255,255,255,.85) 0%, transparent 55%),
+linear-gradient(135deg, var(--lav), var(--baby) 30%, var(--pink) 65%, var(--hot2));
 }
 .loadCard{
 width:min(520px, 92vw);
@@ -441,16 +466,6 @@ box-shadow: var(--shadowA);
 text-align:center;
 position:relative;
 overflow:hidden;
-}
-.loadCard:before{
-content:"";
-position:absolute; inset:0;
-background:
-radial-gradient(700px 260px at 20% 0%, rgba(255,255,255,.85), transparent 55%),
-radial-gradient(700px 260px at 90% 10%, rgba(255,255,255,.55), transparent 60%);
-opacity:.9;
-pointer-events:none;
-mix-blend-mode: screen;
 }
 .loadTitle{
 font-size: 28px;
@@ -561,6 +576,13 @@ body { font-size: 16px; }
 h1 { font-size: 34px; line-height: 1.05; }
 h2 { font-size: 22px; }
 }
+
+/* extra help for short screens */
+@media (max-height: 720px){
+.topbar { padding: 8px 12px; }
+.btnRow { margin-top: 10px; }
+.stage { min-height: 230px; }
+}
 </style>
 </head>
 
@@ -641,9 +663,9 @@ h2 { font-size: 22px; }
 <div class="timebox"><div class="num" id="ss">--</div><div class="lab">Sec</div></div>
 </div>
 
-<!-- ✅ Spotify link (3D button) -->
+<!-- ✅ Spotify link (chrome button) -->
 <div class="btnRow">
-<a class="btn3d ghost"
+<a class="btn3d chrome"
 href="https://open.spotify.com/playlist/15r9CUj51Xte5bt5ctVj8l?si=R99FGXYPTcaUEtyFsM11SQ&pi=uaBWm0O1SMWq5"
 target="_blank" rel="noopener">🎧 Galentine’s Playlist</a>
 </div>
@@ -809,7 +831,7 @@ setTimeout(()=> { try{ loading.remove(); }catch(e){ loading.style.display="none"
 }
 document.addEventListener("DOMContentLoaded", () => setTimeout(hideLoader, 900));
 window.addEventListener("load", () => setTimeout(hideLoader, 1200));
-setTimeout(hideLoader, 2500);
+setTimeout(hideLoader, 2600); // hard fail-safe
 
 /* === SOUND (WebAudio blips + sparkles) === */
 let soundOn = false;
@@ -853,7 +875,7 @@ soundBtn.classList.toggle('soundOn', soundOn);
 soundLabel.textContent = soundOn ? "Sound: On" : "Sound: Off";
 // user gesture => allowed on mobile
 ensureAudio();
-blip(420, 80, "sine", 0.05);
+if(soundOn) blip(420, 80, "sine", 0.05);
 });
 
 /* === SWIPE + BUTTON NAV === */
@@ -871,7 +893,7 @@ d.addEventListener('click', () => goTo(i));
 
 function currentIndex(){
 const x = track.scrollLeft;
-const w = track.clientWidth + 14;
+const w = track.clientWidth + 14; // gap is 14px
 return Math.round(x / w);
 }
 
@@ -1025,8 +1047,8 @@ function setHidden(id, val){ document.getElementById(id).value = val || ""; }
 
 document.getElementById('submitBtn').addEventListener('click', () => {
 const name = document.getElementById('name').value.trim();
-if(!name){ burstFX(10); blip(220,90,"sine",0.06); alert("Put your name, bestie 😭"); return; }
-if(!state.status){ burstFX(10); blip(220,90,"sine",0.06); alert("Pick your RSVP status 💖"); return; }
+if(!name){ burstFX(10); if(soundOn) blip(220,90,"sine",0.06); alert("Put your name 😭"); return; }
+if(!state.status){ burstFX(10); if(soundOn) blip(220,90,"sine",0.06); alert("Pick your RSVP status 💖"); return; }
 
 setHidden('f_name', name);
 setHidden('f_status', state.status);
@@ -1126,79 +1148,12 @@ document.body.appendChild(script);
 }
 
 document.getElementById('refreshResults').addEventListener('click', () => {
-blip(520); fetchResults();
+if(soundOn) blip(520);
+fetchResults();
 });
 
 setTimeout(fetchResults, 1100);
 </script>
-  <script>
-  // 🔥 HARD FAIL-SAFE: always remove loading screen
-  window.addEventListener('load', () => {
-    const loader = document.querySelector('.loading');
-    if (loader) {
-      loader.style.opacity = '0';
-      loader.style.pointerEvents = 'none';
-      setTimeout(() => loader.remove(), 400);
-    }
-  });
 
-  // Extra safety for iOS Safari
-  setTimeout(() => {
-    const loader = document.querySelector('.loading');
-    if (loader) loader.remove();
-  }, 3000);
-    /* ===== FIX: allow vertical scroll on small phones (iOS Safari) ===== */
-html, body { height: 100%; }
-.app, .viewport, .track, .slide { min-height: 0 !important; } /* KEY for flex scrolling */
-
-.viewport { overflow: hidden; }
-.track { align-items: stretch; } /* make slides fill height */
-.slide {
-  height: 100%;
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
-  padding-bottom: max(28px, env(safe-area-inset-bottom));
-}
-
-/* If a card is too tall, scroll INSIDE the card */
-.card {
-  max-height: calc(100% - 10px);
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* extra help for short screens */
-@media (max-height: 720px){
-  .topbar { padding: 8px 12px; }
-  .btnRow { margin-top: 10px; }
-}
-</script>
-  /* ===== FIX: allow vertical scroll on small phones (iOS Safari) ===== */
-html, body { height: 100%; }
-.app, .viewport, .track, .slide { min-height: 0 !important; } /* KEY for flex scrolling */
-
-.viewport { overflow: hidden; }
-.track { align-items: stretch; } /* make slides fill height */
-.slide {
-  height: 100%;
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
-  padding-bottom: max(28px, env(safe-area-inset-bottom));
-}
-
-/* If a card is too tall, scroll INSIDE the card */
-.card {
-  max-height: calc(100% - 10px);
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* extra help for short screens */
-@media (max-height: 720px){
-  .topbar { padding: 8px 12px; }
-  .btnRow { margin-top: 10px; }
-}
 </body>
 </html>
