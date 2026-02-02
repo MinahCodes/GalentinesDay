@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>Galentine’s Launch 💖🚀</title>
 
 <style>
@@ -16,7 +16,6 @@
 
 --glass: rgba(255,255,255,.28);
 --card: rgba(255,255,255,.68);
---stroke: rgba(255,255,255,.62);
 
 --shadowA: 0 26px 90px rgba(255,31,184,.38);
 --shadowB: 0 16px 36px rgba(0,0,0,.18);
@@ -25,18 +24,18 @@
 
 --safeTop: env(safe-area-inset-top);
 --safeBot: env(safe-area-inset-bottom);
+--vh: 100vh;
 }
 
 *{box-sizing:border-box}
-html,body{height:100%}
-body{
+html,body{
+height: var(--vh);
 margin:0;
+overflow:hidden; /* lock the page; internal scroll only */
+}
+body{
 font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
 color:var(--ink);
-
-/* keep story layout stable; slides will scroll */
-overflow:hidden;
-
 background:
 radial-gradient(1100px 800px at 18% 8%, rgba(255,255,255,.90) 0%, transparent 55%),
 radial-gradient(900px 700px at 82% 16%, rgba(255,255,255,.80) 0%, transparent 55%),
@@ -44,9 +43,11 @@ radial-gradient(900px 650px at 30% 85%, rgba(255,255,255,.55) 0%, transparent 55
 linear-gradient(135deg, var(--lav), var(--baby) 30%, var(--pink) 65%, var(--hot2));
 }
 
-/* Sparkle dot pattern overlay */
+/* overlays must NOT block taps */
+.pattern,.floaters,.fx{ pointer-events:none; }
+
 .pattern{
-position:fixed; inset:0; pointer-events:none; z-index:0;
+position:fixed; inset:0; z-index:0;
 opacity:.26;
 background-image:
 radial-gradient(circle at 20% 30%, rgba(255,255,255,.95) 0 1.5px, transparent 2px),
@@ -56,8 +57,7 @@ radial-gradient(circle at 88% 80%, rgba(255,255,255,.9) 0 1.5px, transparent 2px
 background-size: 260px 260px;
 }
 
-/* Puffy “gel” blobs for depth */
-.floaters{ position:fixed; inset:0; pointer-events:none; z-index:0; }
+.floaters{ position:fixed; inset:0; z-index:0; }
 .blob{
 position:absolute;
 width: 320px; height: 320px;
@@ -67,9 +67,7 @@ radial-gradient(140px 140px at 28% 26%, rgba(255,255,255,.95) 0%, rgba(255,255,2
 radial-gradient(160px 160px at 70% 75%, rgba(255,255,255,.35) 0%, rgba(255,255,255,0) 62%),
 linear-gradient(135deg, rgba(255,31,184,.56), rgba(255,255,255,.22));
 border: 1px solid rgba(255,255,255,.65);
-box-shadow:
-0 44px 130px rgba(0,0,0,.14),
-0 26px 90px rgba(255,31,184,.20);
+box-shadow: 0 44px 130px rgba(0,0,0,.14), 0 26px 90px rgba(255,31,184,.20);
 filter: saturate(1.15);
 animation: drift 10s ease-in-out infinite;
 }
@@ -78,29 +76,26 @@ animation: drift 10s ease-in-out infinite;
 .b3{ left:40px; bottom:-210px; width: 460px; height:460px; border-radius: 150px; transform: rotate(8deg); animation-duration: 16s; }
 @keyframes drift{ 0%,100%{ translate: 0 0; } 50%{ translate: 0 -22px; } }
 
-/* App container */
 .app{
 position:relative;
 z-index:1;
-height:100%;
+height: var(--vh);
 display:flex;
 flex-direction:column;
 padding-top: calc(10px + var(--safeTop));
 padding-bottom: calc(10px + var(--safeBot));
-
-/* ✅ KEY for iOS flex scroll */
-min-height: 0;
+min-height:0; /* KEY for iOS */
 }
 
-/* Top bar */
 .topbar{
 display:flex;
 align-items:center;
 justify-content:space-between;
 gap:10px;
 padding: 10px 14px;
-flex: 0 0 auto;
+flex:0 0 auto;
 }
+
 .chip{
 display:inline-flex; align-items:center; gap:8px;
 padding:10px 14px;
@@ -109,21 +104,8 @@ background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.58)
 border: 1px solid rgba(255,255,255,.72);
 box-shadow: 0 14px 30px rgba(0,0,0,.10), 0 18px 50px rgba(255,31,184,.18);
 font-weight: 1000;
-position:relative;
-overflow:hidden;
 user-select:none;
--webkit-tap-highlight-color: transparent;
 }
-.chip:after{
-content:"";
-position:absolute; inset:-40% -60%;
-background: linear-gradient(120deg, transparent 40%, rgba(255,255,255,.55) 50%, transparent 60%);
-transform: rotate(8deg) translateX(-60%);
-animation: sweep 5.2s ease-in-out infinite;
-opacity:.65;
-pointer-events:none;
-}
-@keyframes sweep{ 0%{ transform: rotate(8deg) translateX(-60%);} 55%{ transform: rotate(8deg) translateX(60%);} 100%{ transform: rotate(8deg) translateX(60%);} }
 
 .soundBtn{
 display:inline-flex; align-items:center; gap:8px;
@@ -134,7 +116,6 @@ background: linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.54)
 box-shadow: 0 14px 30px rgba(0,0,0,.10);
 font-weight:1000;
 cursor:pointer;
--webkit-tap-highlight-color: transparent;
 user-select:none;
 }
 .soundDot{
@@ -144,14 +125,11 @@ box-shadow: 0 0 0 6px rgba(255,31,184,.14);
 }
 .soundOn .soundDot{ background: #17ff7a; box-shadow: 0 0 0 6px rgba(23,255,122,.16); }
 
-/* Carousel */
 .viewport{
-flex: 1 1 auto;
-overflow:hidden;
+flex:1 1 auto;
+min-height:0; /* KEY */
+overflow:hidden; /* only internal containers scroll */
 padding: 10px 14px;
-
-/* ✅ KEY for iOS flex scroll */
-min-height: 0;
 }
 
 .track{
@@ -163,71 +141,44 @@ overflow-y:hidden;
 scroll-snap-type: x mandatory;
 -webkit-overflow-scrolling: touch;
 scroll-behavior:smooth;
-padding-bottom: 10px;
-
-/* ✅ make slides fill height */
-align-items: stretch;
-
-/* ✅ gestures */
+align-items:stretch;
 touch-action: pan-x;
+padding-bottom: 10px;
 }
 .track::-webkit-scrollbar{ display:none; }
 
+/* ✅ BIG FIX:
+slide does NOT scroll; the card scrolls (stable on iOS) */
 .slide{
 flex: 0 0 100%;
 scroll-snap-align: center;
-
 height:100%;
-min-height: 0; /* ✅ KEY */
+min-height:0;
 display:flex;
 flex-direction:column;
-gap:12px;
-
-/* ✅ allow vertical scrolling */
-overflow-y:auto;
--webkit-overflow-scrolling: touch;
-touch-action: pan-y;
-overscroll-behavior: contain;
-
-padding-bottom: max(18px, env(safe-area-inset-bottom));
+overflow:hidden;
 }
 
-/* Main card with tilt */
+/* card is the vertical scroll container */
 .card{
+flex:1 1 auto;
+min-height:0;
+overflow-y:auto;
+-webkit-overflow-scrolling: touch;
+
 position:relative;
 background: var(--card);
 border: 1px solid rgba(255,255,255,.72);
 border-radius: var(--r);
 box-shadow: var(--shadowA);
 padding: 18px;
-overflow:hidden;
-transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-transition: transform 120ms ease;
-will-change: transform;
-
-/* ✅ let content scroll on short screens */
-min-height: 0;
-}
-.card:before{
-content:"";
-position:absolute; inset:0;
-border-radius: inherit;
-pointer-events:none;
-background:
-radial-gradient(900px 320px at 20% 0%, rgba(255,255,255,.88), transparent 55%),
-radial-gradient(700px 260px at 90% 10%, rgba(255,255,255,.55), transparent 60%);
-opacity:.95;
-mix-blend-mode: screen;
 }
 
-/* Header typography */
 h1{
 margin:0;
 font-size: clamp(34px, 7vw, 56px);
 line-height:1.02;
 letter-spacing:-.9px;
-position:relative;
-z-index:2;
 text-shadow: 0 2px 0 rgba(255,255,255,.55);
 }
 .sub{
@@ -235,15 +186,12 @@ margin:10px 0 0;
 font-size: 16px;
 line-height:1.55;
 opacity:.95;
-position:relative;
-z-index:2;
 max-width: 60ch;
 }
 
-/* Hero stage */
 .stage{
 position:relative;
-min-height: 280px;
+min-height: 260px;
 margin-top: 14px;
 border-radius: 24px;
 background:
@@ -253,10 +201,8 @@ linear-gradient(135deg, rgba(255,255,255,.32), rgba(255,255,255,.12));
 border: 1px solid rgba(255,255,255,.52);
 box-shadow: var(--shadowB);
 overflow:hidden;
-z-index:2;
 }
 
-/* Neon green accent stripe */
 .neon{
 position:absolute;
 left:-20%;
@@ -266,23 +212,19 @@ height:28px;
 transform: rotate(-10deg);
 background: linear-gradient(90deg, transparent, rgba(23,255,122,.8), transparent);
 opacity:.40;
-filter: blur(0.2px);
 }
 
-/* Floating 3D assets */
 .asset{
 position:absolute;
 width: 150px;
 height:auto;
 filter: drop-shadow(0 22px 28px rgba(0,0,0,.22));
-transform: translate3d(0,0,0);
 animation: floatA 6.6s ease-in-out infinite;
 user-select:none;
 pointer-events:none;
 }
 .asset.small{ width: 96px; animation-duration: 7.4s; }
 .asset.tiny{ width: 70px; animation-duration: 8.1s; }
-
 @keyframes floatA{ 0%,100%{ translate:0 0; } 50%{ translate:0 -14px; } }
 
 .a-hero{ left: 50%; top: 50%; transform: translate(-50%,-50%); width: 190px; animation-duration: 6.2s; }
@@ -293,8 +235,7 @@ pointer-events:none;
 .a-star{ left: 38%; top: 10%; width: 76px; animation-duration: 7.1s; }
 .a-flower{ left: 6%; top: 70%; width: 86px; animation-duration: 8.6s; }
 
-/* Pills and 3D buttons */
-.pills{ display:flex; flex-wrap:wrap; gap:10px; margin-top: 12px; position:relative; z-index:2; }
+.pills{ display:flex; flex-wrap:wrap; gap:10px; margin-top: 12px; }
 .pill{
 padding:10px 12px;
 border-radius:999px;
@@ -305,7 +246,7 @@ border: 1px solid rgba(255,255,255,.75);
 box-shadow: var(--shadowB);
 }
 
-.btnRow{ display:flex; flex-wrap:wrap; gap:10px; margin-top: 14px; position:relative; z-index:2; }
+.btnRow{ display:flex; flex-wrap:wrap; gap:10px; margin-top: 14px; }
 
 .btn3d{
 display:inline-flex; align-items:center; justify-content:center; gap:10px;
@@ -315,25 +256,10 @@ text-decoration:none;
 font-weight: 1200;
 border: 1px solid rgba(255,255,255,.55);
 box-shadow: var(--shadowC), 0 18px 45px rgba(0,0,0,.16);
-transform: translateY(0);
-transition: transform .12s ease, box-shadow .12s ease;
-user-select:none;
--webkit-tap-highlight-color: transparent;
+background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.62));
+color: var(--ink);
 cursor:pointer;
-position:relative;
-overflow:hidden;
-.btn3d.chrome{
-  color:#240617;
-  background:
-    radial-gradient(160px 90px at 22% 18%, rgba(255,255,255,.95), transparent 58%),
-    radial-gradient(220px 120px at 80% 78%, rgba(255,255,255,.55), transparent 65%),
-    linear-gradient(135deg, rgba(230,230,255,.95), rgba(255,255,255,.65) 35%, rgba(255,120,214,.25) 70%, rgba(180,255,220,.35));
-  border: 1px solid rgba(255,255,255,.85);
-  box-shadow: 0 18px 0 rgba(140,0,90,.12), 0 18px 45px rgba(0,0,0,.16);
-}
-
-/* ✅ ensure clickable */
-pointer-events:auto;
+user-select:none;
 }
 .btn3d.primary{
 color:#fff;
@@ -341,12 +267,8 @@ background:
 radial-gradient(180px 90px at 25% 20%, rgba(255,255,255,.35), transparent 55%),
 linear-gradient(180deg, var(--hot), var(--hot2));
 }
-.btn3d.ghost{
-color: var(--ink);
-background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.62));
-}
 .btn3d.chrome{
-color: var(--ink);
+color:#240617;
 background:
 radial-gradient(160px 90px at 22% 18%, rgba(255,255,255,.95), transparent 58%),
 radial-gradient(220px 120px at 80% 78%, rgba(255,255,255,.55), transparent 65%),
@@ -354,22 +276,8 @@ linear-gradient(135deg, rgba(230,230,255,.95), rgba(255,255,255,.65) 35%, rgba(2
 border: 1px solid rgba(255,255,255,.85);
 box-shadow: 0 18px 0 rgba(140,0,90,.12), 0 18px 45px rgba(0,0,0,.16);
 }
-.btn3d:active{
-transform: translateY(8px);
-box-shadow: 0 8px 0 rgba(140,0,90,.16), 0 12px 26px rgba(0,0,0,.14);
-}
-.btn3d:after{
-content:"";
-position:absolute; inset:-40% -60%;
-background: linear-gradient(120deg, transparent 40%, rgba(255,255,255,.45) 50%, transparent 60%);
-transform: rotate(8deg) translateX(-60%);
-animation: sweep 4.8s ease-in-out infinite;
-opacity:.65;
-pointer-events:none;
-}
 
-/* Countdown */
-.countdown{ display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin-top:12px; position:relative; z-index:2; }
+.countdown{ display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin-top:12px; }
 .timebox{
 border-radius: 18px;
 padding: 12px 10px;
@@ -381,16 +289,13 @@ box-shadow: var(--shadowB);
 .num{ font-size: 24px; font-weight: 1300; letter-spacing:-.4px; }
 .lab{ font-size:12px; font-weight: 1100; opacity:.86; letter-spacing:.9px; text-transform:uppercase; margin-top:3px; }
 
-/* Options UI */
 .sectionTitle{
 margin: 12px 0 8px;
 font-size: 18px;
 font-weight: 1300;
 letter-spacing:-.2px;
-position:relative;
-z-index:2;
 }
-.options{ display:flex; flex-wrap:wrap; gap:10px; position:relative; z-index:2; }
+.options{ display:flex; flex-wrap:wrap; gap:10px; }
 
 .opt{
 display:inline-flex;
@@ -406,24 +311,13 @@ box-shadow: 0 16px 0 rgba(120,0,80,.12), var(--shadowB);
 font-weight: 1200;
 cursor:pointer;
 user-select:none;
--webkit-tap-highlight-color: transparent;
-transition: transform .12s ease, box-shadow .12s ease;
-
-/* ✅ ensure clickable */
-pointer-events:auto;
 }
-.opt:active{
-transform: translateY(7px);
-box-shadow: 0 8px 0 rgba(120,0,80,.12), 0 12px 26px rgba(0,0,0,.14);
-}
-.opt input{ display:none; }
 .opt[data-on="1"]{
 outline: 3px solid rgba(23,255,122,.45);
 box-shadow: 0 16px 0 rgba(23,255,122,.16), 0 18px 45px rgba(0,0,0,.16);
 }
 
-/* Inputs */
-label.small{ display:block; margin: 10px 0 6px; font-weight:1300; position:relative; z-index:2; }
+label.small{ display:block; margin: 10px 0 6px; font-weight:1300; }
 input.text, textarea.text{
 width:100%;
 border-radius: 18px;
@@ -433,19 +327,16 @@ font-size: 15px;
 background: rgba(255,255,255,.82);
 box-shadow: var(--shadowB);
 outline:none;
-position:relative;
-z-index:2;
 }
 textarea.text{ min-height: 96px; resize: vertical; }
 
-/* Progress + nav */
 .nav{
 padding: 4px 14px 10px;
 display:flex;
 gap:10px;
 align-items:center;
 justify-content:space-between;
-flex: 0 0 auto;
+flex:0 0 auto;
 }
 .dots{ display:flex; gap:8px; align-items:center; }
 .dot{
@@ -456,7 +347,6 @@ box-shadow: 0 10px 18px rgba(0,0,0,.10);
 }
 .dot.on{ background: rgba(23,255,122,.85); }
 
-/* Loading screen */
 .loading{
 position:fixed; inset:0; z-index:50;
 display:flex; flex-direction:column; align-items:center; justify-content:center;
@@ -473,24 +363,9 @@ background: rgba(255,255,255,.62);
 border: 1px solid rgba(255,255,255,.76);
 box-shadow: var(--shadowA);
 text-align:center;
-position:relative;
-overflow:hidden;
 }
-.loadTitle{
-font-size: 28px;
-font-weight: 1400;
-letter-spacing:-.6px;
-margin: 0;
-position:relative;
-z-index:2;
-}
-.loadSub{
-margin: 8px 0 0;
-opacity:.92;
-position:relative;
-z-index:2;
-font-weight: 1100;
-}
+.loadTitle{ font-size: 28px; font-weight: 1400; margin: 0; }
+.loadSub{ margin: 8px 0 0; opacity:.92; font-weight: 1100; }
 .bar{
 margin: 14px auto 0;
 height: 14px;
@@ -499,8 +374,6 @@ border-radius: 999px;
 background: rgba(255,255,255,.55);
 border: 1px solid rgba(255,255,255,.76);
 overflow:hidden;
-position:relative;
-z-index:2;
 box-shadow: var(--shadowB);
 }
 .bar > i{
@@ -517,44 +390,15 @@ animation: loadMove 1.05s ease-in-out infinite;
 100%{ transform: translateX(-20%); width: 30%; }
 }
 
-/* Confetti/hearts layer */
-.fx{
-position:fixed; inset:0; pointer-events:none; z-index:40;
-overflow:hidden;
-}
-.fx span{
-position:absolute;
-font-size: 18px;
-filter: drop-shadow(0 10px 12px rgba(0,0,0,.18));
-animation: popFly 900ms ease-out forwards;
-opacity:0;
-}
-@keyframes popFly{
-0%{ transform: translate(0,0) scale(.6); opacity:0; }
-15%{ opacity:1; }
-100%{ transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(1.1); opacity:0; }
-}
-
-/* Results */
-.resultsGrid{
-display:grid;
-gap:10px;
-position:relative;
-z-index:2;
-}
+.resultsGrid{ display:grid; gap:10px; }
 .meter{
 border-radius: 18px;
 padding: 12px;
 background: rgba(255,255,255,.78);
 border: 1px solid rgba(255,255,255,.82);
 box-shadow: var(--shadowB);
-overflow:hidden;
-position:relative;
 }
-.meterTop{
-display:flex; justify-content:space-between; gap:10px; align-items:baseline;
-font-weight:1300;
-}
+.meterTop{ display:flex; justify-content:space-between; gap:10px; align-items:baseline; font-weight:1300; }
 .meterTop small{ opacity:.85; font-weight:1100; }
 .rail{
 margin-top:10px;
@@ -571,47 +415,12 @@ border-radius: 999px;
 background: linear-gradient(90deg, rgba(23,255,122,.85), rgba(255,31,184,.85));
 transition: width 520ms ease;
 }
-.tinyNote{
-margin-top:10px;
-opacity:.92;
-font-weight:1100;
-position:relative;
-z-index:2;
-}
+.tinyNote{ margin-top:10px; opacity:.92; font-weight:1100; }
 
-/* mobile type safety */
-@media (max-width: 480px) {
-body { font-size: 16px; }
-h1 { font-size: 34px; line-height: 1.05; }
-h2 { font-size: 22px; }
-}
-
-/* extra help for short screens */
 @media (max-height: 720px){
 .topbar { padding: 8px 12px; }
 .btnRow { margin-top: 10px; }
-.stage { min-height: 230px; }
-}
-  /* === iOS SMALL PHONE SCROLL FIX (real) === */
-.slide{
-  overflow: hidden;     /* slide itself doesn't scroll */
-}
-
-/* card becomes the scroll container */
-.slide .card{
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* iOS + transforms = broken scrolling.
-   Disable tilt transforms on small/short screens */
-@media (max-width: 430px), (max-height: 740px){
-  .card{
-    transform: none !important;
-    transition: none !important;
-  }
+.stage { min-height: 220px; }
 }
 </style>
 </head>
@@ -624,7 +433,6 @@ h2 { font-size: 22px; }
 <div class="blob b3"></div>
 </div>
 
-<!-- Hype loading screen -->
 <div class="loading" id="loading">
 <div class="loadCard">
 <h2 class="loadTitle">Launching Galentine’s… 💖🚀</h2>
@@ -633,12 +441,10 @@ h2 { font-size: 22px; }
 </div>
 </div>
 
-<div class="fx" id="fx"></div>
-
 <div class="app">
 <div class="topbar">
 <div class="chip">💿 Galentine’s Launch</div>
-<button class="soundBtn" id="soundBtn" type="button" aria-label="Toggle sound">
+<button class="soundBtn" id="soundBtn" type="button">
 <span class="soundDot" aria-hidden="true"></span>
 <span id="soundLabel">Sound: Off</span>
 </button>
@@ -649,11 +455,11 @@ h2 { font-size: 22px; }
 
 <!-- Slide 1 -->
 <section class="slide">
-<div class="card tilt">
+<div class="card">
 <h1>Valentine’s Day<br>for the Girlies 💘</h1>
 <p class="sub">This is a limited drop. If you’re coming, say it with your chest. 💅</p>
 
-<div class="stage" id="stage1">
+<div class="stage">
 <div class="neon"></div>
 
 <img class="asset a-hero" src="assets/hero-phone.png" alt="" />
@@ -667,14 +473,14 @@ h2 { font-size: 22px; }
 
 <div class="btnRow">
 <button class="btn3d primary" type="button" id="startBtn">Tap to Enter 💖</button>
-<button class="btn3d ghost" type="button" id="peekBtn">Peek the Deets 👀</button>
+<button class="btn3d" type="button" id="peekBtn">Peek the Deets 👀</button>
 </div>
 </div>
 </section>
 
 <!-- Slide 2 -->
 <section class="slide">
-<div class="card tilt">
+<div class="card">
 <h1>The Deets ✨</h1>
 <p class="sub">Bring something homemade or bought. Either way, bring your best energy.</p>
 
@@ -693,30 +499,27 @@ h2 { font-size: 22px; }
 <div class="timebox"><div class="num" id="ss">--</div><div class="lab">Sec</div></div>
 </div>
 
-<!-- ✅ Spotify link (chrome button) -->
 <div class="btnRow">
 <a class="btn3d chrome"
-   href="https://open.spotify.com/playlist/15r9CUj51Xte5bt5ctVj8l?si=R99FGXYPTcaUEtyFsM11SQ&pi=uaBWm0O1SMWq5"
-   target="_blank" rel="noopener">
-  🎧 Galentine’s Playlist
-</a>
+href="https://open.spotify.com/playlist/15r9CUj51Xte5bt5ctVj8l?si=R99FGXYPTcaUEtyFsM11SQ&pi=uaBWm0O1SMWq5"
+target="_blank" rel="noopener">🎧 Galentine’s Playlist</a>
 </div>
 
 <div class="btnRow">
 <button class="btn3d primary" type="button" id="toVote">Next: Vote 💿</button>
-<button class="btn3d ghost" type="button" id="back1">Back</button>
+<button class="btn3d" type="button" id="back1">Back</button>
 </div>
 </div>
 </section>
 
 <!-- Slide 3 -->
 <section class="slide">
-<div class="card tilt">
+<div class="card">
 <h1>Vote Like a Popstar 🎤</h1>
 <p class="sub">Tap choices. They should feel like stickers—because they are.</p>
 
 <div class="sectionTitle">Activity (pick any)</div>
-<div class="options" data-group="activity">
+<div class="options">
 <div class="opt" data-type="check" data-name="activity" data-value="Brunch">🍳 Brunch</div>
 <div class="opt" data-type="check" data-name="activity" data-value="Karaoke">🎤 Karaoke</div>
 <div class="opt" data-type="check" data-name="activity" data-value="Spa">🧖‍♀️ Spa</div>
@@ -724,14 +527,14 @@ h2 { font-size: 22px; }
 </div>
 
 <div class="sectionTitle">Drinks (pick one)</div>
-<div class="options" data-group="drinks">
+<div class="options">
 <div class="opt" data-type="radio" data-name="drinks" data-value="Mocktails">🍓 Mocktails</div>
 <div class="opt" data-type="radio" data-name="drinks" data-value="Cocktails">🥂 Cocktails</div>
 <div class="opt" data-type="radio" data-name="drinks" data-value="Both">✨ Both</div>
 </div>
 
 <div class="sectionTitle">Outfit / Theme (pick any)</div>
-<div class="options" data-group="outfit">
+<div class="options">
 <div class="opt" data-type="check" data-name="outfit" data-value="All pink everything">💖 All pink</div>
 <div class="opt" data-type="check" data-name="outfit" data-value="Red + pink">💋 Red + pink</div>
 <div class="opt" data-type="check" data-name="outfit" data-value="Cozy slay">🧸 Cozy slay</div>
@@ -740,24 +543,24 @@ h2 { font-size: 22px; }
 
 <div class="btnRow">
 <button class="btn3d primary" type="button" id="toExtras">Next: Extras ✨</button>
-<button class="btn3d ghost" type="button" id="back2">Back</button>
+<button class="btn3d" type="button" id="back2">Back</button>
 </div>
 </div>
 </section>
 
 <!-- Slide 4 -->
 <section class="slide">
-<div class="card tilt">
+<div class="card">
 <h1>Extras 😇</h1>
 <p class="sub">Be honest. Are you bringing a +1? And what are you contributing to the snack economy?</p>
 
 <label class="small">Plus one?</label>
-<div class="options" data-group="plusone">
+<div class="options">
 <div class="opt" data-type="radio" data-name="plusone" data-value="No plus one">No +1</div>
 <div class="opt" data-type="radio" data-name="plusone" data-value="Yes +1">Yes +1</div>
 </div>
 
-<label class="small" for="bring">What are you bringing? (Potluck / Buy-luck)</label>
+<label class="small" for="bring">What are you bringing?</label>
 <input class="text" id="bring" type="text" placeholder="cupcakes / chips / fruit / drinks / vibes" />
 
 <label class="small" for="notes">Notes / allergies / song request</label>
@@ -765,22 +568,22 @@ h2 { font-size: 22px; }
 
 <div class="btnRow">
 <button class="btn3d primary" type="button" id="toRsvp">Next: RSVP 💌</button>
-<button class="btn3d ghost" type="button" id="back3">Back</button>
+<button class="btn3d" type="button" id="back3">Back</button>
 </div>
 </div>
 </section>
 
 <!-- Slide 5 -->
 <section class="slide">
-<div class="card tilt">
+<div class="card">
 <h1>RSVP 💌</h1>
 <p class="sub">Submit it. Then check the live vote results like it’s the Billboard charts.</p>
 
 <label class="small" for="name">Your name *</label>
-<input class="text" id="name" type="text" placeholder="Nia / Kayla / Queen 👑" required />
+<input class="text" id="name" type="text" placeholder="Nia / Kayla / Queen 👑" />
 
 <div class="sectionTitle">RSVP status *</div>
-<div class="options" data-group="status">
+<div class="options">
 <div class="opt" data-type="radio" data-name="status" data-value="I’m in 💖">I’m in 💖</div>
 <div class="opt" data-type="radio" data-name="status" data-value="Maybe 🤞">Maybe 🤞</div>
 <div class="opt" data-type="radio" data-name="status" data-value="Can’t 😭">Can’t 😭</div>
@@ -788,13 +591,13 @@ h2 { font-size: 22px; }
 
 <div class="btnRow">
 <button class="btn3d primary" type="button" id="submitBtn">Submit RSVP 💖</button>
-<button class="btn3d ghost" type="button" id="refreshResults">Refresh Results</button>
+<button class="btn3d" type="button" id="refreshResults">Refresh Results</button>
 </div>
 
 <div class="tinyNote" id="saveMsg" style="display:none;">Saved 💖 If you change your mind, submit again.</div>
 
 <div class="sectionTitle" style="margin-top:14px;">Live Results 📊</div>
-<div class="resultsGrid" id="resultsGrid">
+<div class="resultsGrid">
 <div class="meter">
 <div class="meterTop"><span>Total RSVPs</span><small id="totalCount">0</small></div>
 <div class="rail"><div class="fill" id="totalFill"></div></div>
@@ -814,9 +617,7 @@ h2 { font-size: 22px; }
 </div>
 
 <div class="tinyNote" id="detailDump"></div>
-</div>
 
-<!-- Hidden iframe form POST (reliable, no CORS issues) -->
 <form id="hiddenForm"
 method="POST"
 action="https://script.google.com/macros/s/AKfycbzc_x8_hAQSXUCZnyyRHsVb_anqCFrO2NhV2NwaomycAAHL7t-sgfsErnzxaTmey9BpCw/exec"
@@ -830,13 +631,9 @@ style="display:none;">
 <input name="bring" id="f_bring" />
 <input name="notes" id="f_notes" />
 <div id="checks"></div>
-
-<input type="hidden" name="event" value="Galentine’s Day" />
-<input type="hidden" name="host" value="Aminah" />
-<input type="hidden" name="city" value="Jersey City" />
-<input type="hidden" name="datetime" value="Feb 13 @ 2:00 PM" />
 </form>
 <iframe name="sink" style="display:none"></iframe>
+</div>
 </section>
 
 </div>
@@ -849,43 +646,40 @@ style="display:none;">
 </div>
 
 <script>
-/* ===== iOS FIX: real viewport height so slides can scroll ===== */
+/* iOS real viewport height */
 function setRealVH(){
-  const vh = window.innerHeight; // real visible height on iOS Safari
-  document.documentElement.style.setProperty('--vh', `${vh}px`);
+document.documentElement.style.setProperty('--vh', `${window.innerHeight}px`);
 }
 setRealVH();
-window.addEventListener('resize', setRealVH, { passive:true });
-window.addEventListener('orientationchange', () => setTimeout(setRealVH, 250), { passive:true });
-/* === CONFIG === */
+window.addEventListener('resize', setRealVH, {passive:true});
+window.addEventListener('orientationchange', () => setTimeout(setRealVH, 250), {passive:true});
+
+/* CONFIG */
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzc_x8_hAQSXUCZnyyRHsVb_anqCFrO2NhV2NwaomycAAHL7t-sgfsErnzxaTmey9BpCw/exec";
 const EVENT_LOCAL = { month: 2, day: 13, hour: 14, minute: 0 };
 
-/* === LOADING SCREEN (safe + never stuck) === */
+/* LOADER — impossible to get stuck */
 function hideLoader(){
 const loading = document.getElementById("loading");
 if(!loading) return;
 loading.style.transition = "opacity 220ms ease";
 loading.style.opacity = "0";
-setTimeout(()=> { try{ loading.remove(); }catch(e){ loading.style.display="none"; } }, 260);
+setTimeout(()=> loading.remove(), 260);
 }
-document.addEventListener("DOMContentLoaded", () => setTimeout(hideLoader, 900));
-window.addEventListener("load", () => setTimeout(hideLoader, 1200));
-setTimeout(hideLoader, 2600); // hard fail-safe
+document.addEventListener("DOMContentLoaded", () => setTimeout(hideLoader, 700));
+window.addEventListener("load", () => setTimeout(hideLoader, 900));
+setTimeout(hideLoader, 1800);
 
-/* === SOUND (WebAudio blips + sparkles) === */
+/* SOUND */
 let soundOn = false;
 const soundBtn = document.getElementById('soundBtn');
 const soundLabel = document.getElementById('soundLabel');
 let audioCtx = null;
 
 function ensureAudio(){
-if(!audioCtx){
-audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-}
+if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 if(audioCtx.state === "suspended") audioCtx.resume();
 }
-
 function blip(freq=520, ms=60, type="sine", gain=0.045){
 if(!soundOn) return;
 ensureAudio();
@@ -901,24 +695,14 @@ o.connect(g).connect(audioCtx.destination);
 o.start(t0);
 o.stop(t0 + ms/1000);
 }
-
-function sparkle(){
-if(!soundOn) return;
-blip(740, 70, "triangle", 0.04);
-setTimeout(()=>blip(980, 60, "sine", 0.035), 60);
-setTimeout(()=>blip(1220, 70, "triangle", 0.03), 120);
-}
-
 soundBtn.addEventListener('click', () => {
 soundOn = !soundOn;
 soundBtn.classList.toggle('soundOn', soundOn);
 soundLabel.textContent = soundOn ? "Sound: On" : "Sound: Off";
-// user gesture => allowed on mobile
-ensureAudio();
-if(soundOn) blip(420, 80, "sine", 0.05);
+if(soundOn){ ensureAudio(); blip(420, 80, "sine", 0.05); }
 });
 
-/* === SWIPE + BUTTON NAV === */
+/* NAV */
 const track = document.getElementById('track');
 const slides = Array.from(document.querySelectorAll('.slide'));
 const dots = document.getElementById('dots');
@@ -932,36 +716,33 @@ d.addEventListener('click', () => goTo(i));
 });
 
 function currentIndex(){
-const x = track.scrollLeft;
-const w = track.clientWidth + 14; // gap is 14px
-return Math.round(x / w);
+const w = track.clientWidth + 14;
+return Math.round(track.scrollLeft / w);
 }
-
 function setUI(i){
 Array.from(dots.children).forEach((el, idx) => el.classList.toggle('on', idx===i));
 stepLabel.textContent = `Step ${i+1} / ${slides.length}`;
 }
-
 function goTo(i){
 const w = track.clientWidth + 14;
 track.scrollTo({ left: i * w, behavior: 'smooth' });
 setUI(i);
-  slides[i].scrollTo({ top: 0, behavior: 'auto' });
+// reset scroll inside the card so buttons show on small phones
+const card = slides[i].querySelector('.card');
+if(card) card.scrollTo({ top: 0, behavior: 'auto' });
 }
-
 track.addEventListener('scroll', () => setUI(currentIndex()), { passive:true });
 
-document.getElementById('startBtn').addEventListener('click', () => { sparkle(); burstFX(22); goTo(1); });
-document.getElementById('peekBtn').addEventListener('click', () => { blip(520); goTo(1); });
-document.getElementById('toVote').addEventListener('click', () => { blip(560); goTo(2); });
-document.getElementById('toExtras').addEventListener('click', () => { blip(560); goTo(3); });
-document.getElementById('toRsvp').addEventListener('click', () => { blip(560); goTo(4); });
+document.getElementById('startBtn').addEventListener('click', () => goTo(1));
+document.getElementById('peekBtn').addEventListener('click', () => goTo(1));
+document.getElementById('toVote').addEventListener('click', () => goTo(2));
+document.getElementById('toExtras').addEventListener('click', () => goTo(3));
+document.getElementById('toRsvp').addEventListener('click', () => goTo(4));
+document.getElementById('back1').addEventListener('click', () => goTo(0));
+document.getElementById('back2').addEventListener('click', () => goTo(1));
+document.getElementById('back3').addEventListener('click', () => goTo(2));
 
-document.getElementById('back1').addEventListener('click', () => { blip(440); goTo(0); });
-document.getElementById('back2').addEventListener('click', () => { blip(440); goTo(1); });
-document.getElementById('back3').addEventListener('click', () => { blip(440); goTo(2); });
-
-/* === OPTIONS === */
+/* OPTIONS */
 const state = {
 activity: new Set(),
 outfit: new Set(),
@@ -978,21 +759,20 @@ const val = el.dataset.value;
 if(type === "check"){
 const set = state[name];
 if(set.has(val)){ set.delete(val); el.dataset.on="0"; blip(420); }
-else{ set.add(val); el.dataset.on="1"; sparkle(); }
-} else {
+else{ set.add(val); el.dataset.on="1"; blip(740); }
+}else{
 state[name] = val;
 const parent = el.parentElement;
 Array.from(parent.querySelectorAll('.opt')).forEach(o => o.dataset.on = (o===el ? "1" : "0"));
-sparkle();
+blip(740);
 }
 }
-
 document.querySelectorAll('.opt').forEach(el => {
 el.dataset.on = "0";
 el.addEventListener('click', () => toggleOpt(el));
 });
 
-/* === COUNTDOWN === */
+/* COUNTDOWN */
 const dd = document.getElementById('dd');
 const hh = document.getElementById('hh');
 const mm = document.getElementById('mm');
@@ -1001,85 +781,23 @@ const ss = document.getElementById('ss');
 function getTarget(){
 const now = new Date();
 const year = now.getFullYear();
-const targetThisYear = new Date(year, EVENT_LOCAL.month - 1, EVENT_LOCAL.day, EVENT_LOCAL.hour, EVENT_LOCAL.minute, 0);
-return (targetThisYear - now > 0) ? targetThisYear : new Date(year + 1, EVENT_LOCAL.month - 1, EVENT_LOCAL.day, EVENT_LOCAL.hour, EVENT_LOCAL.minute, 0);
+const t = new Date(year, EVENT_LOCAL.month - 1, EVENT_LOCAL.day, EVENT_LOCAL.hour, EVENT_LOCAL.minute, 0);
+return (t - now > 0) ? t : new Date(year + 1, EVENT_LOCAL.month - 1, EVENT_LOCAL.day, EVENT_LOCAL.hour, EVENT_LOCAL.minute, 0);
 }
 let target = getTarget();
-
 function tick(){
 const n = new Date();
 let diff = target - n;
-if(diff < 0) { target = getTarget(); diff = target - n; }
-
-const d = Math.floor(diff / (1000*60*60*24));
-diff -= d*(1000*60*60*24);
-const h = Math.floor(diff / (1000*60*60));
-diff -= h*(1000*60*60);
-const m = Math.floor(diff / (1000*60));
-diff -= m*(1000*60);
+if(diff < 0){ target = getTarget(); diff = target - n; }
+const d = Math.floor(diff / (1000*60*60*24)); diff -= d*(1000*60*60*24);
+const h = Math.floor(diff / (1000*60*60)); diff -= h*(1000*60*60);
+const m = Math.floor(diff / (1000*60)); diff -= m*(1000*60);
 const s = Math.floor(diff / 1000);
-
-dd.textContent = d;
-hh.textContent = h;
-mm.textContent = m;
-ss.textContent = s;
+dd.textContent=d; hh.textContent=h; mm.textContent=m; ss.textContent=s;
 }
-tick();
-setInterval(tick, 1000);
+tick(); setInterval(tick, 1000);
 
-/* === TILT === */
-const tilts = Array.from(document.querySelectorAll('.tilt'));
-let tiltRX = 0, tiltRY = 0;
-
-function applyTilt(){
-tilts.forEach(card => {
-card.style.setProperty('--rx', `${tiltRX}deg`);
-card.style.setProperty('--ry', `${tiltRY}deg`);
-});
-}
-
-window.addEventListener('deviceorientation', (e) => {
-const g = Math.max(-18, Math.min(18, e.gamma || 0));
-const b = Math.max(-18, Math.min(18, e.beta || 0));
-tiltRY = g * 0.18;
-tiltRX = (b - 10) * 0.12;
-applyTilt();
-}, { passive:true });
-
-window.addEventListener('mousemove', (e) => {
-const x = (e.clientX / window.innerWidth) - 0.5;
-const y = (e.clientY / window.innerHeight) - 0.5;
-tiltRY = x * 6;
-tiltRX = -y * 5;
-applyTilt();
-}, { passive:true });
-
-/* === CONFETTI / HEARTS === */
-const fx = document.getElementById('fx');
-function burstFX(count=18){
-const emojis = ["💖","✨","💿","💘","🌸","⭐️","🫧","💅"];
-const cx = Math.random() * window.innerWidth;
-const cy = Math.random() * window.innerHeight * 0.6 + 80;
-
-for(let i=0;i<count;i++){
-const s = document.createElement('span');
-s.textContent = emojis[Math.floor(Math.random()*emojis.length)];
-s.style.left = cx + "px";
-s.style.top = cy + "px";
-const dx = (Math.random()*2 - 1) * 220;
-const dy = (Math.random()*-1) * (260 + Math.random()*200);
-const rot = (Math.random()*2 - 1) * 240;
-s.style.setProperty('--dx', dx + "px");
-s.style.setProperty('--dy', dy + "px");
-s.style.setProperty('--rot', rot + "deg");
-s.style.fontSize = (14 + Math.random()*18) + "px";
-fx.appendChild(s);
-requestAnimationFrame(()=>{ s.style.opacity = "1"; });
-setTimeout(()=> s.remove(), 950);
-}
-}
-
-/* === SUBMIT RSVP (POST to iframe) === */
+/* SUBMIT RSVP */
 const hiddenForm = document.getElementById('hiddenForm');
 const checksDiv = document.getElementById('checks');
 const saveMsg = document.getElementById('saveMsg');
@@ -1088,8 +806,8 @@ function setHidden(id, val){ document.getElementById(id).value = val || ""; }
 
 document.getElementById('submitBtn').addEventListener('click', () => {
 const name = document.getElementById('name').value.trim();
-if(!name){ burstFX(10); if(soundOn) blip(220,90,"sine",0.06); alert("Put your name 😭"); return; }
-if(!state.status){ burstFX(10); if(soundOn) blip(220,90,"sine",0.06); alert("Pick your RSVP status 💖"); return; }
+if(!name){ alert("Put your name 😭"); return; }
+if(!state.status){ alert("Pick your RSVP status 💖"); return; }
 
 setHidden('f_name', name);
 setHidden('f_status', state.status);
@@ -1111,35 +829,28 @@ i.type="hidden"; i.name="outfit"; i.value=v;
 checksDiv.appendChild(i);
 }
 
-sparkle();
-burstFX(28);
 hiddenForm.submit();
 saveMsg.style.display = "block";
-setTimeout(fetchResults, 900);
+setTimeout(fetchResults, 800);
 });
 
-/* === RESULTS DASHBOARD (JSONP) === */
+/* RESULTS (JSONP) */
 const totalCount = document.getElementById('totalCount');
 const totalFill = document.getElementById('totalFill');
 const topActivity = document.getElementById('topActivity');
 const topDrink = document.getElementById('topDrink');
 const topOutfit = document.getElementById('topOutfit');
-const activityFill = document.getElementById('activityFill');
+const activityFill= document.getElementById('activityFill');
 const drinksFill = document.getElementById('drinksFill');
 const outfitFill = document.getElementById('outfitFill');
 const detailDump = document.getElementById('detailDump');
 
 function topKey(obj){
-let bestK = "—", bestV = 0;
-for(const k in obj){
-if(obj[k] > bestV){ bestV = obj[k]; bestK = k; }
+let bestK="—", bestV=0;
+for(const k in obj){ if(obj[k] > bestV){ bestV=obj[k]; bestK=k; } }
+return {key: bestK, val: bestV};
 }
-return { key: bestK, val: bestV };
-}
-function pct(n, total){
-if(!total) return 0;
-return Math.round((n/total)*100);
-}
+function pct(n,total){ return (!total)?0:Math.round((n/total)*100); }
 
 function renderResults(data){
 const total = data.total || 0;
@@ -1150,9 +861,7 @@ const a = topKey(data.activity || {});
 const d = topKey(data.drinks || {});
 const o = topKey(data.outfit || {});
 
-const aPct = pct(a.val, total);
-const dPct = pct(d.val, total);
-const oPct = pct(o.val, total);
+const aPct = pct(a.val,total), dPct = pct(d.val,total), oPct = pct(o.val,total);
 
 topActivity.textContent = `${a.key} — ${a.val} (${aPct}%)`;
 topDrink.textContent = `${d.key} — ${d.val} (${dPct}%)`;
@@ -1162,184 +871,34 @@ activityFill.style.width = aPct + "%";
 drinksFill.style.width = dPct + "%";
 outfitFill.style.width = oPct + "%";
 
-const sTop = topKey(data.status || {});
-detailDump.textContent = total
-? `Leading status: ${sTop.key} — ${sTop.val} (${pct(sTop.val,total)}%).`
-: "No votes yet. Be the first icon. 💅";
+detailDump.textContent = total ? "Updated just now ✅" : "No votes yet. Be the first icon. 💅";
 }
 
 function fetchResults(){
 const cb = "cb_" + Math.random().toString(16).slice(2);
 const script = document.createElement('script');
-
 window[cb] = (data) => {
-try { renderResults(data || {}); }
-finally {
+try{ renderResults(data || {}); }
+finally{
 try{ delete window[cb]; }catch(e){ window[cb]=undefined; }
 script.remove();
 }
 };
-
 script.src = `${WEB_APP_URL}?action=results&callback=${cb}&t=${Date.now()}`;
 script.onerror = () => {
-detailDump.textContent = "Results couldn’t load (yet). Try refresh.";
+detailDump.textContent = "Results couldn’t load. Check Apps Script deployment.";
 script.remove();
 };
 document.body.appendChild(script);
 }
 
-const refreshBtn = document.getElementById('refreshResults');
-
-refreshBtn.addEventListener('click', (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-
-  // feedback so you know it fired
-  if (typeof blip === "function") blip(520);
-  detailDump.textContent = "Refreshing results…";
-
-  fetchResults();
-
-  // little sparkle feedback
-  if (typeof burstFX === "function") burstFX(10);
+document.getElementById('refreshResults').addEventListener('click', (e) => {
+e.preventDefault();
+detailDump.textContent = "Refreshing…";
+fetchResults();
 });
 
-setTimeout(fetchResults, 1100);
-/* ===== iOS SMALL PHONE SCROLL FIX (SAFE) ===== */
-html, body {
-  height: 100%;
-  overflow: hidden;
-}
-
-.app {
-  height: 100%;
-}
-
-.viewport {
-  flex: 1;
-  overflow: hidden;
-}
-
-.track {
-  height: 100%;
-  display: flex;
-}
-
-.slide {
-  height: 100%;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: max(32px, env(safe-area-inset-bottom));
-}
-
-/* allow tall cards to scroll internally */
-.card {
-  max-height: calc(100vh - 120px);
-  overflow-y: auto;
-}
-  /* ===========================
-   FINAL: iOS SMALL PHONE SCROLL + TAP FIX
-   Put this at the *bottom* of <style>
-   =========================== */
-
-/* keep the main layout locked */
-html, body { height: 100%; overflow: hidden; }
-
-/* flex children MUST be allowed to shrink or scroll breaks on iOS */
-.app, .viewport, .track, .slide { min-height: 0; }
-
-/* horizontal swipe stays */
-.track{
-  height: 100%;
-  align-items: stretch;
-  touch-action: pan-x;
-}
-
-/* each slide scrolls vertically */
-.slide{
-  height: 100%;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
-  padding-bottom: max(32px, env(safe-area-inset-bottom));
-}
-
-/* IMPORTANT: transformed parents can kill scrolling on iOS.
-   Disable the tilt transform on small/short screens. */
-@media (max-width: 430px), (max-height: 740px){
-  .card{
-    transform: none !important;
-    transition: none !important;
-  }
-}
-
-/* make sure clickable things are clickable */
-.btn3d, .opt, button, a { pointer-events: auto; }
-.pattern, .floaters, .fx { pointer-events: none; }
-
-/* ===== FINAL: iOS small phone scroll + tap fix ===== */
-html, body { height: 100%; overflow: hidden; }
-.app, .viewport, .track, .slide { min-height: 0; }
-
-.track { height: 100%; align-items: stretch; touch-action: pan-x; }
-
-.slide{
-  height: 100%;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
-  padding-bottom: max(32px, env(safe-area-inset-bottom));
-}
-
-/* transforms can kill scroll/taps on iOS — disable tilt on small/short screens */
-@media (max-width: 430px), (max-height: 740px){
-  .card{
-    transform: none !important;
-    transition: none !important;
-  }
-}
-  /* ===== iOS small-phone scroll FIX (must be last) ===== */
-
-/* use real vh from JS */
-:root{ --vh: 100vh; }
-
-/* lock the page itself; slides will scroll */
-html, body{
-  height: var(--vh);
-  overflow: hidden;
-}
-
-/* force the app to be exactly the visible screen height */
-.app{
-  height: var(--vh);
-}
-
-/* critical: allow flex child scrolling */
-.viewport{
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-}
-
-/* horizontal track only */
-.track{
-  height: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
-}
-
-/* vertical scroll happens INSIDE the slide */
-.slide{
-  height: 100%;
-  min-height: 0;
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
-  padding-bottom: max(40px, env(safe-area-inset-bottom));
-}
+setTimeout(fetchResults, 900);
 </script>
-
 </body>
 </html>
