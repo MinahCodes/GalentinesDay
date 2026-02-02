@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RSVP 💌 | Aminah’s Galentine’s</title>
+
+  <style>
+    :root{
+      --hot: #ff2fb3;
+      --pink: #ff74cc;
+      --baby: #ffe0f2;
+      --cream:#fff7fb;
+      --ink: #2b0820;
+
+      --card:#ffffffcc;
+      --stroke: rgba(255, 47, 179, .22);
+
+      --shadowA: 0 20px 60px rgba(255, 47, 179, .22);
+      --shadowB: 0 10px 22px rgba(0,0,0,.10);
+      --radius: 26px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color: var(--ink);
+      background:
+        radial-gradient(1000px 700px at 15% 10%, #fff 0%, transparent 60%),
+        radial-gradient(900px 600px at 80% 20%, #fff 0%, transparent 55%),
+        linear-gradient(135deg, var(--baby), var(--pink));
+      overflow-x:hidden;
+    }
+
+    .wrap{
+      max-width: 980px;
+      margin:0 auto;
+      padding: 18px 16px 64px;
+    }
+
+    .top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom: 14px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.7));
+      border: 1px solid var(--stroke);
+      box-shadow: 0 10px 24px rgba(255,47,179,.12);
+      font-weight: 900;
+      text-decoration:none;
+      color:inherit;
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadowA);
+      padding: 18px;
+      position:relative;
+      overflow:hidden;
+    }
+    .card:before{
+      content:"";
+      position:absolute; inset:0;
+      border-radius: inherit;
+      pointer-events:none;
+      background:
+        radial-gradient(900px 300px at 20% 0%, rgba(255,255,255,.8), transparent 50%),
+        radial-gradient(700px 260px at 90% 10%, rgba(255,255,255,.55), transparent 55%);
+      opacity:.7;
+      mix-blend-mode: screen;
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size: clamp(28px, 4.2vw, 44px);
+      letter-spacing:-.5px;
+    }
+    .sub{
+      margin:0 0 12px;
+      opacity:.95;
+      line-height:1.5;
+      max-width: 70ch;
+    }
+
+    form{ position:relative; z-index:1; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:14px;
+      margin-top: 10px;
+    }
+    @media (max-width:860px){ .grid{ grid-template-columns: 1fr; } }
+
+    label{
+      display:block;
+      font-weight: 1000;
+      margin: 10px 0 6px;
+    }
+
+    input[type="text"], textarea, select{
+      width:100%;
+      border-radius: 16px;
+      border: 1px solid rgba(255,47,179,.22);
+      padding: 12px 12px;
+      font-size: 15px;
+      background: rgba(255,255,255,.9);
+      outline:none;
+      box-shadow: 0 10px 22px rgba(0,0,0,.06);
+    }
+    textarea{ min-height: 92px; resize: vertical; }
+
+    .options{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top: 8px;
+    }
+
+    .opt{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.75));
+      border: 1px solid rgba(255,47,179,.18);
+      box-shadow: 0 10px 22px rgba(0,0,0,.08);
+      font-weight: 950;
+      cursor:pointer;
+      user-select:none;
+    }
+    .opt input{ accent-color: var(--hot); }
+
+    .btnrow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top: 14px;
+      align-items:center;
+    }
+
+    .btn{
+      appearance:none;
+      border: 1px solid rgba(255,255,255,.45);
+      border-radius: 18px;
+      padding: 14px 16px;
+      font-weight: 1000;
+      cursor:pointer;
+      user-select:none;
+      box-shadow: var(--shadowB);
+      transition: transform .12s ease;
+      position:relative;
+      z-index:1;
+    }
+    .btn:active{ transform: translateY(2px) scale(.99); }
+
+    .primary{
+      color:white;
+      background:
+        radial-gradient(180px 90px at 30% 20%, rgba(255,255,255,.35), transparent 55%),
+        linear-gradient(180deg, var(--hot), #ff5fc6);
+      box-shadow: 0 18px 40px rgba(255,47,179,.32);
+    }
+    .ghost{
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.72));
+      border: 1px solid rgba(255,47,179,.20);
+      color: var(--ink);
+    }
+
+    .tiny{
+      font-size: 13px;
+      opacity:.9;
+      margin-top: 10px;
+      line-height:1.4;
+      position:relative;
+      z-index:1;
+    }
+
+    /* Success panel */
+    .success{
+      display:none;
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.72));
+      border: 1px solid rgba(0,0,0,.08);
+      box-shadow: 0 12px 26px rgba(0,0,0,.10);
+      position:relative;
+      z-index:1;
+    }
+    .success strong{ font-weight: 1000; }
+
+    .error{
+      display:none;
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 20px;
+      background: rgba(255,255,255,.9);
+      border: 1px solid rgba(255,0,80,.22);
+      box-shadow: 0 12px 26px rgba(0,0,0,.10);
+      position:relative;
+      z-index:1;
+    }
+
+    /* tiny once-only “sparkle” on submit (CSS only) */
+    .sparkBurst{
+      display:none;
+      position:absolute;
+      right: 18px;
+      top: 18px;
+      font-size: 22px;
+      animation: pop 800ms ease-out forwards;
+      z-index:2;
+    }
+    @keyframes pop{
+      0%{ transform: scale(.6); opacity:0; }
+      30%{ transform: scale(1.1); opacity:1; }
+      100%{ transform: scale(1.0); opacity:0; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <div class="top">
+      <a class="chip" href="index.html">⬅ Back</a>
+      <div class="chip">💌 RSVP + Vote</div>
+    </div>
+
+    <section class="card">
+      <div class="sparkBurst" id="sparkBurst">✨💖✨</div>
+      <h1>RSVP for Galentine’s 💘</h1>
+      <p class="sub">
+        Fill this out and hit submit — it goes straight into Aminah’s RSVP sheet.
+      </p>
+
+      <!-- IMPORTANT: Replace action URL after you deploy Apps Script -->
+      <form id="rsvpForm" method="POST" action="YOUR_WEB_APP_URL_HERE" target="hiddenFrame">
+        <div class="grid">
+          <div>
+            <label for="name">Your name *</label>
+            <input id="name" name="name" type="text" required placeholder="e.g., Nia / Kayla / Queen 👑" />
+
+            <label>RSVP status *</label>
+            <div class="options">
+              <label class="opt"><input type="radio" name="status" value="I’m in 💖" required /> I’m in 💖</label>
+              <label class="opt"><input type="radio" name="status" value="Maybe 🤞" /> Maybe 🤞</label>
+              <label class="opt"><input type="radio" name="status" value="Can’t 😭" /> Can’t 😭</label>
+            </div>
+
+            <label for="availability">Availability (Feb 13 @ 2PM)</label>
+            <select id="availability" name="availability">
+              <option value="Yes — Feb 13 @ 2PM works">Yes — Feb 13 @ 2PM works</option>
+              <option value="Maybe — depends">Maybe — depends</option>
+              <option value="No — can’t make it">No — can’t make it</option>
+              <option value="Earlier that day">Earlier that day</option>
+              <option value="Later that day">Later that day</option>
+            </select>
+
+            <label>Activity vote (pick any)</label>
+            <div class="options">
+              <label class="opt"><input type="checkbox" name="activity" value="Brunch" /> Brunch</label>
+              <label class="opt"><input type="checkbox" name="activity" value="Karaoke" /> Karaoke</label>
+              <label class="opt"><input type="checkbox" name="activity" value="Spa" /> Spa</label>
+              <label class="opt"><input type="checkbox" name="activity" value="Game night" /> Game night</label>
+            </div>
+
+            <label>Drinks vote</label>
+            <div class="options">
+              <label class="opt"><input type="radio" name="drinks" value="Mocktails" /> Mocktails</label>
+              <label class="opt"><input type="radio" name="drinks" value="Cocktails" /> Cocktails</label>
+              <label class="opt"><input type="radio" name="drinks" value="Both" /> Both</label>
+            </div>
+          </div>
+
+          <div>
+            <label>Outfit / color theme (pick any)</label>
+            <div class="options">
+              <label class="opt"><input type="checkbox" name="outfit" value="All pink everything" /> All pink</label>
+              <label class="opt"><input type="checkbox" name="outfit" value="Red + pink" /> Red + pink</label>
+              <label class="opt"><input type="checkbox" name="outfit" value="Cozy slay" /> Cozy slay</label>
+              <label class="opt"><input type="checkbox" name="outfit" value="Y2K glam" /> Y2K glam</label>
+            </div>
+
+            <label>Plus one?</label>
+            <div class="options">
+              <label class="opt"><input type="radio" name="plusone" value="No plus one" /> No</label>
+              <label class="opt"><input type="radio" name="plusone" value="Yes +1" /> Yes +1</label>
+            </div>
+
+            <label for="bring">What are you bringing? (Potluck/Buy-luck)</label>
+            <input id="bring" name="bring" type="text" placeholder="cupcakes / chips / fruit / drinks / vibes" />
+
+            <label for="notes">Notes / allergies / song request</label>
+            <textarea id="notes" name="notes" placeholder="Tell me what I need to know 😌"></textarea>
+          </div>
+        </div>
+
+        <!-- Hidden event metadata (nice for your sheet) -->
+        <input type="hidden" name="event" value="Galentine’s Day" />
+        <input type="hidden" name="host" value="Aminah" />
+        <input type="hidden" name="city" value="Jersey City" />
+        <input type="hidden" name="datetime" value="Feb 13 @ 2:00 PM" />
+
+        <div class="btnrow">
+          <button class="btn primary" type="submit">Submit RSVP 💌</button>
+          <a class="btn ghost" href="index.html">Back to invite</a>
+        </div>
+
+        <div class="success" id="successBox">
+          <strong>Saved!</strong> Your RSVP is in. If you need to change anything, submit again — I’ll see the latest one. 💖
+        </div>
+
+        <div class="error" id="errorBox">
+          <strong>Oops.</strong> This didn’t submit. Tell Aminah directly for now (and try again later).
+        </div>
+
+        <p class="tiny">
+          Heads up: this form saves to a private Google Sheet via Apps Script. No phone number is displayed on this site.
+        </p>
+
+        <!-- Hidden iframe target so the page doesn’t redirect (avoids CORS headaches) -->
+        <iframe name="hiddenFrame" style="display:none"></iframe>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    // Show a success state after submission without reloading (iframe post)
+    const form = document.getElementById('rsvpForm');
+    const successBox = document.getElementById('successBox');
+    const errorBox = document.getElementById('errorBox');
+    const spark = document.getElementById('sparkBurst');
+
+    // Basic guard: make sure user replaced the URL
+    function isPlaceholderAction() {
+      return (form.action || "").includes("YOUR_WEB_APP_URL_HERE");
+    }
+
+    form.addEventListener('submit', (e) => {
+      successBox.style.display = "none";
+      errorBox.style.display = "none";
+
+      if (isPlaceholderAction()) {
+        e.preventDefault();
+        errorBox.style.display = "block";
+        errorBox.textContent = "You still need to paste your Apps Script Web App URL into rsvp.html (form action).";
+        return;
+      }
+
+      // Sparkle now (fast feedback)
+      spark.style.display = "block";
+      spark.style.animation = "none";
+      // restart animation
+      void spark.offsetWidth;
+      spark.style.animation = "";
+
+      // Optimistic success: Apps Script receives the iframe POST.
+      setTimeout(() => {
+        successBox.style.display = "block";
+        // optional: keep form values so they can screenshot, but we can clear:
+        // form.reset();
+      }, 450);
+    });
+  </script>
+</body>
+</html>
