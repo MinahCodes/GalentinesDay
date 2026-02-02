@@ -656,6 +656,8 @@ window.addEventListener('orientationchange', () => setTimeout(setRealVH, 250), {
 
 /* CONFIG */
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzc_x8_hAQSXUCZnyyRHsVb_anqCFrO2NhV2NwaomycAAHL7t-sgfsErnzxaTmey9BpCw/exec";
+let resultsLoading = false;
+let lastResultsScript = null;
 const EVENT_LOCAL = { month: 2, day: 13, hour: 14, minute: 0 };
 
 /* LOADER — impossible to get stuck */
@@ -671,10 +673,83 @@ window.addEventListener("load", () => setTimeout(hideLoader, 900));
 setTimeout(hideLoader, 1800);
 
 /* SOUND */
+/* SOUND — iOS-safe (unlocks audio reliably) */
 let soundOn = false;
-const soundBtn = document.getElementById('soundBtn');
+
+const soundBtn   = document.getElementById('soundBtn');
 const soundLabel = document.getElementById('soundLabel');
+
 let audioCtx = null;
+
+async function ensureAudio(){
+  try{
+    if(!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if(audioCtx.state === "suspended"){
+      await audioCtx.resume();
+    }
+    return true;
+  }catch(err){
+    console.log("Audio blocked:", err);
+    return false;
+  }
+}
+
+function blip(freq=520, ms=70, type="sine", gain=0.05){
+  if(!soundOn || !audioCtx) return;
+
+  const t0 = audioCtx.currentTime;
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+
+  o.type = type;
+  o.frequency.setValueAtTime(freq, t0);
+
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(gain, t0 + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + ms/1000);
+
+  o.connect(g);
+  g.connect(audioCtx.destination);
+
+  o.start(t0);
+  o.stop(t0 + ms/1000);
+}
+
+// IMPORTANT: iOS sometimes ignores "click" but accepts pointer/touch.
+// We'll use ONE handler for all.
+async function toggleSound(e){
+  e.preventDefault();
+
+  const ok = await ensureAudio();
+  if(!ok){
+    // If audio is blocked, still toggle UI so user sees it tried
+    soundOn = !soundOn;
+  }else{
+    soundOn = !soundOn;
+  }
+
+  soundBtn.classList.toggle('soundOn', soundOn);
+  soundLabel.textContent = soundOn ? "Sound: On" : "Sound: Off";
+
+  // little confirmation chirp
+  if(soundOn){
+    blip(420, 90, "sine", 0.06);
+  }
+}
+
+// Use multiple event types for reliability
+soundBtn.addEventListener('pointerdown', toggleSound, { passive:false });
+soundBtn.addEventListener('touchstart', toggleSound, { passive:false });
+soundBtn.addEventListener('click', toggleSound);
+
+// Extra: if iOS suspends audio when switching tabs, re-resume on any tap
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === "visible" && soundOn){
+    ensureAudio();
+  }
+});
 
 function ensureAudio(){
 if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -874,29 +949,77 @@ outfitFill.style.width = oPct + "%";
 detailDump.textContent = total ? "Updated just now ✅" : "No votes yet. Be the first icon. 💅";
 }
 
-function fetchResults(){
-const cb = "cb_" + Math.random().toString(16).slice(2);
-const script = document.createElement('script');
-window[cb] = (data) => {
-try{ renderResults(data || {}); }
-finally{
-try{ delete window[cb]; }catch(e){ window[cb]=undefined; }
-script.remove();
-}
-};
-script.src = `${WEB_APP_URL}?action=results&callback=${cb}&t=${Date.now()}`;
-script.onerror = () => {
-detailDump.textContent = "Results couldn’t load. Check Apps Script deployment.";
-script.remove();
-};
-document.body.appendChild(script);
-}
+function fetchResults(force = false){
+  if(resultsLoading && !force) return; // prevent spam taps
+  resultsLoading = true;
 
-document.getElementById('refreshResults').addEventListener('click', (e) => {
-e.preventDefault();
-detailDump.textContent = "Refreshing…";
-fetchResults();
-});
+  // UI feedback
+  detailDump.textContent = "Refreshing…";
+  const refreshBtn = document.getElementById('refreshResults');
+  if(refreshBtn){
+    refreshBtn.disabled = true;
+    refreshBtn.style.opacity = "0.7";
+  }
+
+  // kill previous JSONP script if still around
+  try{
+    if(lastResultsScript && lastResultsScript.parentNode){
+      lastResultsScript.parentNode.removeChild(lastResultsScript);
+    }
+  }catch(e){}
+
+  const cb = "cb_" + Math.random().toString(16).slice(2);
+  const script = document.createElement('script');
+  lastResultsScript = script;
+
+  // hard timeout so it never hangs silently
+  const timeout = setTimeout(() => {
+    resultsLoading = false;
+    if(refreshBtn){
+      refreshBtn.disabled = false;
+      refreshBtn.style.opacity = "";
+    }
+    detailDump.textContent = "Refresh timed out. Try again.";
+    try{ script.remove(); }catch(e){}
+    try{ delete window[cb]; }catch(e){ window[cb] = undefined; }
+  }, 6000);
+
+  window[cb] = (data) => {
+    clearTimeout(timeout);
+    try{
+      renderResults(data || {});
+      detailDump.textContent = "Updated ✅";
+    }catch(err){
+      detailDump.textContent = "Refresh failed. Check console.";
+    }finally{
+      resultsLoading = false;
+      if(refreshBtn){
+        refreshBtn.disabled = false;
+        refreshBtn.style.opacity = "";
+      }
+      try{ delete window[cb]; }catch(e){ window[cb]=undefined; }
+      try{ script.remove(); }catch(e){}
+    }
+  };
+
+  // cache-bust ALWAYS
+  const url = `${WEB_APP_URL}?action=results&callback=${cb}&t=${Date.now()}_${Math.random().toString(16).slice(2)}`;
+  script.src = url;
+
+  script.onerror = () => {
+    clearTimeout(timeout);
+    resultsLoading = false;
+    if(refreshBtn){
+      refreshBtn.disabled = false;
+      refreshBtn.style.opacity = "";
+    }
+    detailDump.textContent = "Results couldn’t load. Check Apps Script deployment.";
+    try{ delete window[cb]; }catch(e){ window[cb]=undefined; }
+    try{ script.remove(); }catch(e){}
+  };
+
+  document.body.appendChild(script);
+}
 
 setTimeout(fetchResults, 900);
 </script>
