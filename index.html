@@ -1131,5 +1131,74 @@ blip(520); fetchResults();
 
 setTimeout(fetchResults, 1100);
 </script>
+  <script>
+  // 🔥 HARD FAIL-SAFE: always remove loading screen
+  window.addEventListener('load', () => {
+    const loader = document.querySelector('.loading');
+    if (loader) {
+      loader.style.opacity = '0';
+      loader.style.pointerEvents = 'none';
+      setTimeout(() => loader.remove(), 400);
+    }
+  });
+
+  // Extra safety for iOS Safari
+  setTimeout(() => {
+    const loader = document.querySelector('.loading');
+    if (loader) loader.remove();
+  }, 3000);
+    /* ===== FIX: allow vertical scroll on small phones (iOS Safari) ===== */
+html, body { height: 100%; }
+.app, .viewport, .track, .slide { min-height: 0 !important; } /* KEY for flex scrolling */
+
+.viewport { overflow: hidden; }
+.track { align-items: stretch; } /* make slides fill height */
+.slide {
+  height: 100%;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding-bottom: max(28px, env(safe-area-inset-bottom));
+}
+
+/* If a card is too tall, scroll INSIDE the card */
+.card {
+  max-height: calc(100% - 10px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* extra help for short screens */
+@media (max-height: 720px){
+  .topbar { padding: 8px 12px; }
+  .btnRow { margin-top: 10px; }
+}
+</script>
+  /* ===== FIX: allow vertical scroll on small phones (iOS Safari) ===== */
+html, body { height: 100%; }
+.app, .viewport, .track, .slide { min-height: 0 !important; } /* KEY for flex scrolling */
+
+.viewport { overflow: hidden; }
+.track { align-items: stretch; } /* make slides fill height */
+.slide {
+  height: 100%;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding-bottom: max(28px, env(safe-area-inset-bottom));
+}
+
+/* If a card is too tall, scroll INSIDE the card */
+.card {
+  max-height: calc(100% - 10px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* extra help for short screens */
+@media (max-height: 720px){
+  .topbar { padding: 8px 12px; }
+  .btnRow { margin-top: 10px; }
+}
 </body>
 </html>
