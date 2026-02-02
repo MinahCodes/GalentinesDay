@@ -15,10 +15,6 @@
       --cream:#fff7fb;
       --ink: #2b0820;
 
-      --chrome1:#f6f7fb;
-      --chrome2:#cfd6e6;
-      --chrome3:#ffffff;
-
       --card:#ffffffcc;
       --stroke: rgba(255, 47, 179, .22);
 
@@ -229,23 +225,6 @@
     .mini h3{ margin:0 0 6px; font-size:16px; }
     .mini p{ margin:0; font-size:14px; opacity:.92; line-height:1.4; }
 
-    .playlistLinks{
-      display:grid; gap:10px; margin-top:10px;
-    }
-
-    .linkChip{
-      display:flex; align-items:center; gap:10px;
-      padding: 12px 14px;
-      border-radius: 18px;
-      text-decoration:none;
-      color:inherit;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.72));
-      border: 1px solid rgba(255,47,179,.18);
-      box-shadow: 0 10px 22px rgba(0,0,0,.08);
-      font-weight: 950;
-    }
-
     footer{
       text-align:center;
       opacity:.9;
@@ -266,6 +245,101 @@
     @keyframes shine{
       0%{ background-position: 0% 0; }
       100%{ background-position: 200% 0; }
+    }
+
+    /* 3D Spotify Card */
+    .spotify3d{
+      display:block;
+      margin-top:10px;
+      padding:16px;
+      border-radius:22px;
+      text-decoration:none;
+      color: var(--ink);
+      position:relative;
+      overflow:hidden;
+
+      background:
+        radial-gradient(180px 90px at 25% 18%, rgba(255,255,255,.55), transparent 55%),
+        linear-gradient(135deg, rgba(255,255,255,.92), rgba(255,255,255,.68));
+      border: 1px solid rgba(255,47,179,.20);
+      box-shadow:
+        0 18px 45px rgba(0,0,0,.10),
+        0 28px 70px rgba(255,47,179,.18);
+
+      animation: floatCard 6.5s ease-in-out infinite;
+      transition: transform .18s ease;
+    }
+    .spotify3d:hover{ transform: translateY(-3px); }
+    .spotify3d:active{ transform: translateY(1px) scale(.99); }
+
+    @keyframes floatCard{
+      0%,100%{ transform: translateY(0); }
+      50%{ transform: translateY(-8px); }
+    }
+
+    .spotifyTop{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+
+    .spotifyIcon{
+      width:44px;
+      height:44px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      font-size:22px;
+      background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.72));
+      border:1px solid rgba(255,47,179,.18);
+      box-shadow: 0 10px 22px rgba(0,0,0,.10);
+    }
+
+    .spotifyTitle{
+      font-weight:1000;
+      letter-spacing:-.2px;
+    }
+    .spotifySub{
+      font-size:13px;
+      opacity:.85;
+      margin-top:2px;
+    }
+
+    .spotifyBadgeRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .spotifyBadge{
+      padding:8px 10px;
+      border-radius:999px;
+      font-weight:950;
+      font-size:12px;
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.72));
+      border:1px solid rgba(255,47,179,.16);
+      box-shadow: 0 8px 18px rgba(0,0,0,.08);
+    }
+
+    /* subtle shine sweep */
+    .spotifyShine{
+      position:absolute;
+      inset:0;
+      background: linear-gradient(
+        120deg,
+        transparent 30%,
+        rgba(255,255,255,.35) 50%,
+        transparent 70%
+      );
+      transform: translateX(-100%);
+      animation: shineSweep 4.5s ease-in-out infinite;
+      pointer-events:none;
+    }
+    @keyframes shineSweep{
+      0%{ transform: translateX(-100%); }
+      60%{ transform: translateX(120%); }
+      100%{ transform: translateX(120%); }
     }
   </style>
 </head>
@@ -333,11 +407,28 @@
         </div>
 
         <div class="sectionTitle" style="margin-top:14px;">Playlist 🎶</div>
-        <div class="playlistLinks">
-          <a class="linkChip" href="https://open.spotify.com/" target="_blank" rel="noopener">💿 Galentine’s Pre-Game</a>
-          <a class="linkChip" href="https://open.spotify.com/" target="_blank" rel="noopener">💿 Y2K Pink Pop</a>
-          <a class="linkChip" href="https://open.spotify.com/" target="_blank" rel="noopener">💿 Rom-Com Soundtrack Energy</a>
-        </div>
+
+        <a class="spotify3d"
+           href="https://open.spotify.com/playlist/15r9CUj51Xte5bt5ctVj8l?si=R99FGXYPTcaUEtyFsM11SQ&pi=uaBWm0O1SMWq5"
+           target="_blank"
+           rel="noopener">
+
+          <div class="spotifyTop">
+            <div class="spotifyIcon">🎧</div>
+            <div>
+              <div class="spotifyTitle">Galentine’s Playlist</div>
+              <div class="spotifySub">Press play. Set the vibe.</div>
+            </div>
+          </div>
+
+          <div class="spotifyBadgeRow">
+            <span class="spotifyBadge">💖 Y2K</span>
+            <span class="spotifyBadge">🌸 Soft life</span>
+            <span class="spotifyBadge">✨ Main character</span>
+          </div>
+
+          <div class="spotifyShine" aria-hidden="true"></div>
+        </a>
       </div>
     </section>
 
@@ -350,6 +441,7 @@
     // Countdown to Feb 13, 2:00 PM local time (good for Jersey City guests)
     const now = new Date();
     const target = new Date(now.getFullYear(), 1, 13, 14, 0, 0); // Feb = 1
+
     const dd = document.getElementById('dd');
     const hh = document.getElementById('hh');
     const mm = document.getElementById('mm');
