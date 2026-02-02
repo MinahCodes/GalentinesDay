@@ -25,6 +25,7 @@
 
 --safeTop: env(safe-area-inset-top);
 --safeBot: env(safe-area-inset-bottom);
+--vh: 100dvh;
 }
 
 *{box-sizing:border-box}
@@ -33,6 +34,8 @@ body{
 margin:0;
 font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
 color:var(--ink);
+
+/* keep story layout stable; slides will scroll */
 overflow:hidden;
 
 background:
@@ -159,10 +162,15 @@ padding-bottom: 10px;
 .slide{
 flex: 0 0 100%;
 scroll-snap-align: center;
-height:100%;
+height: 100%;
 display:flex;
 flex-direction:column;
 gap:12px;
+
+/* ✅ allow vertical scrolling inside each slide */
+overflow-y:auto;
+-webkit-overflow-scrolling: touch;
+padding-bottom: max(18px, env(safe-area-inset-bottom));
 }
 
 /* Main card with tilt */
@@ -532,25 +540,13 @@ opacity:.92;
 font-weight:1100;
 position:relative;
 z-index:2;
-}/* === PATCH: mobile slide scrolling + iOS viewport fix === */
-html, body { height: 100%; overflow: hidden; }
-
-/* iOS dynamic viewport */
-:root { --vh: 100dvh; }
-
-/* Make each slide scrollable without breaking swipe */
-.slide, .swiper-slide {
-  height: var(--vh);
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: max(18px, env(safe-area-inset-bottom));
 }
 
-/* Keep content readable */
+/* mobile type safety */
 @media (max-width: 480px) {
-  body { font-size: 16px; }
-  h1 { font-size: 34px; line-height: 1.05; }
-  h2 { font-size: 22px; }
+body { font-size: 16px; }
+h1 { font-size: 34px; line-height: 1.05; }
+h2 { font-size: 22px; }
 }
 </style>
 </head>
@@ -577,14 +573,15 @@ html, body { height: 100%; overflow: hidden; }
 <div class="app">
 <div class="topbar">
 <div class="chip">💿 Galentine’s Launch</div>
-<button class="soundBtn" id="soundBtn" type="button" aria-label="Toggle sound" data-sound-toggle>
+<button class="soundBtn" id="soundBtn" type="button" aria-label="Toggle sound">
 <span class="soundDot" aria-hidden="true"></span>
-<span id="soundLabel" data-sound-label>Sound: OFF</span>
+<span id="soundLabel">Sound: Off</span>
 </button>
 </div>
 
 <div class="viewport">
 <div class="track" id="track">
+
 <!-- Slide 1 -->
 <section class="slide">
 <div class="card tilt">
@@ -594,14 +591,13 @@ html, body { height: 100%; overflow: hidden; }
 <div class="stage" id="stage1">
 <div class="neon"></div>
 
-<!-- Replace these with your generated assets in /assets -->
 <img class="asset a-hero" src="assets/hero-phone.png" alt="" />
 <img class="asset a-radio" src="assets/radio.png" alt="" />
 <img class="asset a-cd1" src="assets/cd1.png" alt="" />
-<img class="asset asset small a-cd2" src="assets/cd2.png" alt="" />
-<img class="asset asset small a-heart" src="assets/chrome-heart.png" alt="" />
-<img class="asset asset tiny a-star" src="assets/star.png" alt="" />
-<img class="asset asset tiny a-flower" src="assets/flower.png" alt="" />
+<img class="asset small a-cd2" src="assets/cd2.png" alt="" />
+<img class="asset small a-heart" src="assets/chrome-heart.png" alt="" />
+<img class="asset tiny a-star" src="assets/star.png" alt="" />
+<img class="asset tiny a-flower" src="assets/flower.png" alt="" />
 </div>
 
 <div class="btnRow">
@@ -630,6 +626,13 @@ html, body { height: 100%; overflow: hidden; }
 <div class="timebox"><div class="num" id="hh">--</div><div class="lab">Hours</div></div>
 <div class="timebox"><div class="num" id="mm">--</div><div class="lab">Min</div></div>
 <div class="timebox"><div class="num" id="ss">--</div><div class="lab">Sec</div></div>
+</div>
+
+<!-- ✅ Spotify link (3D button) -->
+<div class="btnRow">
+<a class="btn3d ghost"
+href="https://open.spotify.com/playlist/15r9CUj51Xte5bt5ctVj8l?si=R99FGXYPTcaUEtyFsM11SQ&pi=uaBWm0O1SMWq5"
+target="_blank" rel="noopener">🎧 Galentine’s Playlist</a>
 </div>
 
 <div class="btnRow">
@@ -759,10 +762,8 @@ style="display:none;">
 <input name="plusone" id="f_plusone" />
 <input name="bring" id="f_bring" />
 <input name="notes" id="f_notes" />
-<!-- checkboxes -->
 <div id="checks"></div>
 
-<!-- metadata -->
 <input type="hidden" name="event" value="Galentine’s Day" />
 <input type="hidden" name="host" value="Aminah" />
 <input type="hidden" name="city" value="Jersey City" />
@@ -770,6 +771,7 @@ style="display:none;">
 </form>
 <iframe name="sink" style="display:none"></iframe>
 </section>
+
 </div>
 </div>
 
@@ -780,19 +782,23 @@ style="display:none;">
 </div>
 
 <script>
-// === CONFIG ===
+/* === CONFIG === */
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzc_x8_hAQSXUCZnyyRHsVb_anqCFrO2NhV2NwaomycAAHL7t-sgfsErnzxaTmey9BpCw/exec";
-const EVENT_LOCAL = { month: 2, day: 13, hour: 14, minute: 0 }; // Feb=2 in human, we'll handle below
+const EVENT_LOCAL = { month: 2, day: 13, hour: 14, minute: 0 };
 
-// === LOADING SCREEN (L1) ===
-const loading = document.getElementById('loading');
-setTimeout(() => {
-loading.style.opacity = "0";
+/* === LOADING SCREEN (safe + never stuck) === */
+function hideLoader(){
+const loading = document.getElementById("loading");
+if(!loading) return;
 loading.style.transition = "opacity 220ms ease";
-setTimeout(() => loading.remove(), 260);
-}, 900);
+loading.style.opacity = "0";
+setTimeout(()=> { try{ loading.remove(); }catch(e){ loading.style.display="none"; } }, 260);
+}
+document.addEventListener("DOMContentLoaded", () => setTimeout(hideLoader, 900));
+window.addEventListener("load", () => setTimeout(hideLoader, 1200));
+setTimeout(hideLoader, 2500);
 
-// === SOUND (toggle, WebAudio so you don’t need mp3 files) ===
+/* === SOUND (WebAudio blips + sparkles) === */
 let soundOn = false;
 const soundBtn = document.getElementById('soundBtn');
 const soundLabel = document.getElementById('soundLabel');
@@ -832,10 +838,12 @@ soundBtn.addEventListener('click', () => {
 soundOn = !soundOn;
 soundBtn.classList.toggle('soundOn', soundOn);
 soundLabel.textContent = soundOn ? "Sound: On" : "Sound: Off";
+// user gesture => allowed on mobile
+ensureAudio();
 blip(420, 80, "sine", 0.05);
 });
 
-// === SWIPE + BUTTON NAV (S2) ===
+/* === SWIPE + BUTTON NAV === */
 const track = document.getElementById('track');
 const slides = Array.from(document.querySelectorAll('.slide'));
 const dots = document.getElementById('dots');
@@ -850,7 +858,7 @@ d.addEventListener('click', () => goTo(i));
 
 function currentIndex(){
 const x = track.scrollLeft;
-const w = track.clientWidth + 14; // gap
+const w = track.clientWidth + 14;
 return Math.round(x / w);
 }
 
@@ -865,16 +873,9 @@ track.scrollTo({ left: i * w, behavior: 'smooth' });
 setUI(i);
 }
 
-track.addEventListener('scroll', () => {
-const i = currentIndex();
-setUI(i);
-}, { passive:true });
+track.addEventListener('scroll', () => setUI(currentIndex()), { passive:true });
 
-// Buttons
-document.getElementById('startBtn').addEventListener('click', () => {
-sparkle(); burstFX(22);
-goTo(1);
-});
+document.getElementById('startBtn').addEventListener('click', () => { sparkle(); burstFX(22); goTo(1); });
 document.getElementById('peekBtn').addEventListener('click', () => { blip(520); goTo(1); });
 document.getElementById('toVote').addEventListener('click', () => { blip(560); goTo(2); });
 document.getElementById('toExtras').addEventListener('click', () => { blip(560); goTo(3); });
@@ -884,7 +885,7 @@ document.getElementById('back1').addEventListener('click', () => { blip(440); go
 document.getElementById('back2').addEventListener('click', () => { blip(440); goTo(1); });
 document.getElementById('back3').addEventListener('click', () => { blip(440); goTo(2); });
 
-// === OPTIONS (pressable stickers) ===
+/* === OPTIONS === */
 const state = {
 activity: new Set(),
 outfit: new Set(),
@@ -903,9 +904,7 @@ const set = state[name];
 if(set.has(val)){ set.delete(val); el.dataset.on="0"; blip(420); }
 else{ set.add(val); el.dataset.on="1"; sparkle(); }
 } else {
-// radio
 state[name] = val;
-// clear siblings in same group
 const parent = el.parentElement;
 Array.from(parent.querySelectorAll('.opt')).forEach(o => o.dataset.on = (o===el ? "1" : "0"));
 sparkle();
@@ -917,7 +916,7 @@ el.dataset.on = "0";
 el.addEventListener('click', () => toggleOpt(el));
 });
 
-// === COUNTDOWN (auto rolls to next year if passed) ===
+/* === COUNTDOWN === */
 const dd = document.getElementById('dd');
 const hh = document.getElementById('hh');
 const mm = document.getElementById('mm');
@@ -952,7 +951,7 @@ ss.textContent = s;
 tick();
 setInterval(tick, 1000);
 
-// === TILT / PARALLAX (C4) ===
+/* === TILT === */
 const tilts = Array.from(document.querySelectorAll('.tilt'));
 let tiltRX = 0, tiltRY = 0;
 
@@ -963,9 +962,7 @@ card.style.setProperty('--ry', `${tiltRY}deg`);
 });
 }
 
-// Device orientation (mobile)
 window.addEventListener('deviceorientation', (e) => {
-// beta: front/back, gamma: left/right
 const g = Math.max(-18, Math.min(18, e.gamma || 0));
 const b = Math.max(-18, Math.min(18, e.beta || 0));
 tiltRY = g * 0.18;
@@ -973,7 +970,6 @@ tiltRX = (b - 10) * 0.12;
 applyTilt();
 }, { passive:true });
 
-// Mouse fallback (desktop)
 window.addEventListener('mousemove', (e) => {
 const x = (e.clientX / window.innerWidth) - 0.5;
 const y = (e.clientY / window.innerHeight) - 0.5;
@@ -982,7 +978,7 @@ tiltRX = -y * 5;
 applyTilt();
 }, { passive:true });
 
-// === CONFETTI / HEARTS (C5) ===
+/* === CONFETTI / HEARTS === */
 const fx = document.getElementById('fx');
 function burstFX(count=18){
 const emojis = ["💖","✨","💿","💘","🌸","⭐️","🫧","💅"];
@@ -1002,13 +998,12 @@ s.style.setProperty('--dy', dy + "px");
 s.style.setProperty('--rot', rot + "deg");
 s.style.fontSize = (14 + Math.random()*18) + "px";
 fx.appendChild(s);
-// trigger animation
 requestAnimationFrame(()=>{ s.style.opacity = "1"; });
 setTimeout(()=> s.remove(), 950);
 }
 }
 
-// === SUBMIT RSVP (POST to iframe) ===
+/* === SUBMIT RSVP (POST to iframe) === */
 const hiddenForm = document.getElementById('hiddenForm');
 const checksDiv = document.getElementById('checks');
 const saveMsg = document.getElementById('saveMsg');
@@ -1016,21 +1011,18 @@ const saveMsg = document.getElementById('saveMsg');
 function setHidden(id, val){ document.getElementById(id).value = val || ""; }
 
 document.getElementById('submitBtn').addEventListener('click', () => {
-// validate
 const name = document.getElementById('name').value.trim();
 if(!name){ burstFX(10); blip(220,90,"sine",0.06); alert("Put your name, bestie 😭"); return; }
 if(!state.status){ burstFX(10); blip(220,90,"sine",0.06); alert("Pick your RSVP status 💖"); return; }
 
-// map values
 setHidden('f_name', name);
 setHidden('f_status', state.status);
-setHidden('f_availability', "Feb 13 @ 2PM"); // simple
+setHidden('f_availability', "Feb 13 @ 2PM");
 setHidden('f_drinks', state.drinks);
 setHidden('f_plusone', state.plusone);
 setHidden('f_bring', document.getElementById('bring').value.trim());
 setHidden('f_notes', document.getElementById('notes').value.trim());
 
-// checkbox inputs (Apps Script reads multiple "activity"/"outfit")
 checksDiv.innerHTML = "";
 for(const v of state.activity){
 const i = document.createElement('input');
@@ -1043,17 +1035,14 @@ i.type="hidden"; i.name="outfit"; i.value=v;
 checksDiv.appendChild(i);
 }
 
-// submit
 sparkle();
 burstFX(28);
 hiddenForm.submit();
 saveMsg.style.display = "block";
-
-// refresh results after a moment
 setTimeout(fetchResults, 900);
 });
 
-// === RESULTS DASHBOARD (JSONP) ===
+/* === RESULTS DASHBOARD (JSONP) === */
 const totalCount = document.getElementById('totalCount');
 const totalFill = document.getElementById('totalFill');
 const topActivity = document.getElementById('topActivity');
@@ -1071,7 +1060,6 @@ if(obj[k] > bestV){ bestV = obj[k]; bestK = k; }
 }
 return { key: bestK, val: bestV };
 }
-
 function pct(n, total){
 if(!total) return 0;
 return Math.round((n/total)*100);
@@ -1080,7 +1068,7 @@ return Math.round((n/total)*100);
 function renderResults(data){
 const total = data.total || 0;
 totalCount.textContent = String(total);
-totalFill.style.width = Math.min(100, total*8) + "%"; // visual only
+totalFill.style.width = Math.min(100, total*8) + "%";
 
 const a = topKey(data.activity || {});
 const d = topKey(data.drinks || {});
@@ -1098,7 +1086,6 @@ activityFill.style.width = aPct + "%";
 drinksFill.style.width = dPct + "%";
 outfitFill.style.width = oPct + "%";
 
-// Optional detail line (counts)
 const sTop = topKey(data.status || {});
 detailDump.textContent = total
 ? `Leading status: ${sTop.key} — ${sTop.val} (${pct(sTop.val,total)}%).`
@@ -1106,15 +1093,17 @@ detailDump.textContent = total
 }
 
 function fetchResults(){
-// JSONP callback
 const cb = "cb_" + Math.random().toString(16).slice(2);
+const script = document.createElement('script');
+
 window[cb] = (data) => {
-renderResults(data || {});
+try { renderResults(data || {}); }
+finally {
 try{ delete window[cb]; }catch(e){ window[cb]=undefined; }
 script.remove();
+}
 };
 
-const script = document.createElement('script');
 script.src = `${WEB_APP_URL}?action=results&callback=${cb}&t=${Date.now()}`;
 script.onerror = () => {
 detailDump.textContent = "Results couldn’t load (yet). Try refresh.";
@@ -1127,124 +1116,7 @@ document.getElementById('refreshResults').addEventListener('click', () => {
 blip(520); fetchResults();
 });
 
-// auto fetch once
 setTimeout(fetchResults, 1100);
-  /* === PATCH: mobile-safe sound toggle (no external mp3 needed) === */
-let __audioCtx, __gain, __osc1, __osc2, __osc3;
-let __soundOn = false;
-
-function __startSound() {
-  if (!__audioCtx) {
-    __audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    __gain = __audioCtx.createGain();
-    __gain.gain.value = 0.0;
-    __gain.connect(__audioCtx.destination);
-
-    // glossy popstar pad chord
-    __osc1 = __audioCtx.createOscillator();
-    __osc2 = __audioCtx.createOscillator();
-    __osc3 = __audioCtx.createOscillator();
-    [__osc1, __osc2, __osc3].forEach(o => { o.type = "sine"; o.connect(__gain); });
-
-    __osc1.frequency.value = 220;     // A3
-    __osc2.frequency.value = 277.18;  // C#4-ish
-    __osc3.frequency.value = 329.63;  // E4
-    __osc1.start(); __osc2.start(); __osc3.start();
-
-    // shimmer
-    const lfo = __audioCtx.createOscillator();
-    const lfoGain = __audioCtx.createGain();
-    lfo.type = "sine";
-    lfo.frequency.value = 0.25;
-    lfoGain.gain.value = 10;
-    lfo.connect(lfoGain);
-    lfoGain.connect(__osc1.frequency);
-    lfoGain.connect(__osc2.frequency);
-    lfo.start();
-  }
-  if (__audioCtx.state === "suspended") __audioCtx.resume();
-
-  const now = __audioCtx.currentTime;
-  __gain.gain.cancelScheduledValues(now);
-  __gain.gain.setValueAtTime(__gain.gain.value, now);
-  __gain.gain.linearRampToValueAtTime(0.12, now + 0.25);
-}
-
-function __stopSound() {
-  if (!__audioCtx || !__gain) return;
-  const now = __audioCtx.currentTime;
-  __gain.gain.cancelScheduledValues(now);
-  __gain.gain.setValueAtTime(__gain.gain.value, now);
-  __gain.gain.linearRampToValueAtTime(0.0, now + 0.2);
-}
-
-function toggleSound() {
-  __soundOn = !__soundOn;
-  if (__soundOn) __startSound(); else __stopSound();
-
-  const lbl = document.querySelector("[data-sound-label]");
-  if (lbl) lbl.textContent = __soundOn ? "Sound: ON" : "Sound: OFF";
-}
-
-/* Auto-wire: any element with data-sound-toggle becomes the sound button */
-document.addEventListener("click", (e) => {
-  const btn = e.target.closest("[data-sound-toggle]");
-  if (btn) toggleSound();
-});
-  /* === PATCH: mobile-safe sound toggle === */
-let __audioCtx, __gain, __osc1, __osc2, __osc3;
-let __soundOn = false;
-
-function __startSound() {
-  if (!__audioCtx) {
-    __audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    __gain = __audioCtx.createGain();
-    __gain.gain.value = 0;
-    __gain.connect(__audioCtx.destination);
-
-    __osc1 = __audioCtx.createOscillator();
-    __osc2 = __audioCtx.createOscillator();
-    __osc3 = __audioCtx.createOscillator();
-
-    [__osc1, __osc2, __osc3].forEach(o => {
-      o.type = "sine";
-      o.connect(__gain);
-    });
-
-    __osc1.frequency.value = 220;
-    __osc2.frequency.value = 277.18;
-    __osc3.frequency.value = 329.63;
-
-    __osc1.start(); __osc2.start(); __osc3.start();
-  }
-
-  if (__audioCtx.state === "suspended") __audioCtx.resume();
-
-  const t = __audioCtx.currentTime;
-  __gain.gain.cancelScheduledValues(t);
-  __gain.gain.setValueAtTime(__gain.gain.value, t);
-  __gain.gain.linearRampToValueAtTime(0.12, t + 0.25);
-}
-
-function __stopSound() {
-  if (!__gain || !__audioCtx) return;
-  const t = __audioCtx.currentTime;
-  __gain.gain.cancelScheduledValues(t);
-  __gain.gain.setValueAtTime(__gain.gain.value, t);
-  __gain.gain.linearRampToValueAtTime(0, t + 0.2);
-}
-
-document.addEventListener("click", (e) => {
-  const btn = e.target.closest("[data-sound-toggle]");
-  if (!btn) return;
-
-  __soundOn = !__soundOn;
-  if (__soundOn) __startSound();
-  else __stopSound();
-
-  const lbl = document.querySelector("[data-sound-label]");
-  if (lbl) lbl.textContent = __soundOn ? "Sound: ON" : "Sound: OFF";
-});
 </script>
 </body>
 </html>
