@@ -577,9 +577,9 @@ html, body { height: 100%; overflow: hidden; }
 <div class="app">
 <div class="topbar">
 <div class="chip">💿 Galentine’s Launch</div>
-<button class="soundBtn" id="soundBtn" type="button" aria-label="Toggle sound">
+<button class="soundBtn" id="soundBtn" type="button" aria-label="Toggle sound" data-sound-toggle>
 <span class="soundDot" aria-hidden="true"></span>
-<span id="soundLabel">Sound: Off</span>
+<span id="soundLabel" data-sound-label>Sound: OFF</span>
 </button>
 </div>
 
@@ -1190,6 +1190,60 @@ function toggleSound() {
 document.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-sound-toggle]");
   if (btn) toggleSound();
+});
+  /* === PATCH: mobile-safe sound toggle === */
+let __audioCtx, __gain, __osc1, __osc2, __osc3;
+let __soundOn = false;
+
+function __startSound() {
+  if (!__audioCtx) {
+    __audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    __gain = __audioCtx.createGain();
+    __gain.gain.value = 0;
+    __gain.connect(__audioCtx.destination);
+
+    __osc1 = __audioCtx.createOscillator();
+    __osc2 = __audioCtx.createOscillator();
+    __osc3 = __audioCtx.createOscillator();
+
+    [__osc1, __osc2, __osc3].forEach(o => {
+      o.type = "sine";
+      o.connect(__gain);
+    });
+
+    __osc1.frequency.value = 220;
+    __osc2.frequency.value = 277.18;
+    __osc3.frequency.value = 329.63;
+
+    __osc1.start(); __osc2.start(); __osc3.start();
+  }
+
+  if (__audioCtx.state === "suspended") __audioCtx.resume();
+
+  const t = __audioCtx.currentTime;
+  __gain.gain.cancelScheduledValues(t);
+  __gain.gain.setValueAtTime(__gain.gain.value, t);
+  __gain.gain.linearRampToValueAtTime(0.12, t + 0.25);
+}
+
+function __stopSound() {
+  if (!__gain || !__audioCtx) return;
+  const t = __audioCtx.currentTime;
+  __gain.gain.cancelScheduledValues(t);
+  __gain.gain.setValueAtTime(__gain.gain.value, t);
+  __gain.gain.linearRampToValueAtTime(0, t + 0.2);
+}
+
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-sound-toggle]");
+  if (!btn) return;
+
+  __soundOn = !__soundOn;
+  if (__soundOn) __startSound();
+  else __stopSound();
+
+  const lbl = document.querySelector("[data-sound-label]");
+  if (lbl) lbl.textContent = __soundOn ? "Sound: ON" : "Sound: OFF";
 });
 </script>
 </body>
