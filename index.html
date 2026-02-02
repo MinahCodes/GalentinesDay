@@ -596,6 +596,23 @@ textarea.text{ min-height: 96px; resize: vertical; }
 /* IMPORTANT: overlays never block taps */
 .pattern, .floaters, .fx, .blob, .neon, .stage:before, .card:before { pointer-events:none; }
 button, a, .btn3d, .opt, input, textarea { pointer-events:auto; }
+  /* === FIX: iOS small-phone scroll + swipe === */
+.viewport { overflow: hidden; }
+.track{
+  overflow: hidden !important;          /* disable native horizontal scroll */
+  scroll-snap-type: none !important;    /* disable snap (we control it) */
+  -webkit-overflow-scrolling: auto !important;
+  transform: translate3d(0,0,0);
+  transition: transform 260ms ease;
+  will-change: transform;
+  gap: 0 !important;                    /* IMPORTANT: no gap when translating */
+}
+.slide{
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  min-height: 0 !important;
+  padding-right: 14px;                  /* re-create your “gap” spacing */
+}
 </style>
 </head>
 
@@ -920,13 +937,50 @@ Array.from(dots.children).forEach((el, idx) => el.classList.toggle('on', idx===i
 stepLabel.textContent = `Step ${i+1} / ${slides.length}`;
 }
 
+let activeIndex = 0;
+
 function goTo(i){
-const w = track.clientWidth + 14;
-track.scrollTo({ left: i * w, behavior: 'smooth' });
-setUI(i);
+  activeIndex = Math.max(0, Math.min(slides.length - 1, i));
+  const w = document.querySelector('.viewport').clientWidth;
+  track.style.transform = `translate3d(${-activeIndex * w}px, 0, 0)`;
+  setUI(activeIndex);
 }
 
-track.addEventListener('scroll', () => setUI(currentIndex()), { passive:true });
+/* Remove scroll-based index updates (track no longer scrolls) */
+
+/* Swipe handling (mobile) */
+let startX=0, startY=0, dragging=false;
+
+track.addEventListener('touchstart', (e) => {
+  const t = e.touches[0];
+  startX = t.clientX;
+  startY = t.clientY;
+  dragging = false;
+}, { passive:true });
+
+track.addEventListener('touchmove', (e) => {
+  const t = e.touches[0];
+  const dx = t.clientX - startX;
+  const dy = t.clientY - startY;
+
+  // if user is swiping horizontally, prevent the page from “scroll blocking”
+  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 12) {
+    dragging = true;
+    e.preventDefault();
+  }
+}, { passive:false });
+
+track.addEventListener('touchend', (e) => {
+  if (!dragging) return;
+  const t = e.changedTouches[0];
+  const dx = t.clientX - startX;
+
+  if (dx < -40) goTo(activeIndex + 1);
+  else if (dx > 40) goTo(activeIndex - 1);
+});
+
+/* Keep correct sizing on rotate / resize */
+window.addEventListener('resize', () => goTo(activeIndex));
 
 document.getElementById('startBtn').addEventListener('click', () => { sparkle(); burstFX(22); goTo(1); });
 document.getElementById('peekBtn').addEventListener('click', () => { blip(520); goTo(1); });
